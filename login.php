@@ -7,7 +7,6 @@ if (isset($_SESSION["team_id"])) {
 }
 ?>
 
-
 <!DOCTYPE html>
 <html>
 <head>
@@ -28,6 +27,13 @@ if (isset($_SESSION["team_id"])) {
     <button type="submit">Login</button>
 </form>
 
+<br>
+
+<!-- Signup button -->
+<button onclick="window.location.href='signup.php'">
+    Create New Account
+</button>
+
 <p id="msg"></p>
 
 <script>
@@ -47,7 +53,6 @@ document.getElementById("loginForm").addEventListener("submit", function(e) {
         msg.innerText = data.message;
 
         if (data.status === "success") {
-            // redirect after login
             setTimeout(() => {
                 window.location.href = "dashboard.php";
             }, 1000);
