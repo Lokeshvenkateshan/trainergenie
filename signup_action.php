@@ -40,6 +40,7 @@ if ($stmt->execute()) {
     // LOGIN AFTER SIGNUP
     $_SESSION["team_id"] = $stmt->insert_id;
     $_SESSION["team_name"] = $team_name;
+    $_SESSION["last_activity"] = time();
 
     echo json_encode([
         "status" => "success",

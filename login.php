@@ -1,5 +1,8 @@
 <?php
 session_start();
+if (isset($_GET["timeout"])) {
+    echo "<p style='color:red;'>Session expired. Please login again.</p>";
+}
 
 if (isset($_SESSION["team_id"])) {
     header("Location: dashboard.php");

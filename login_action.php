@@ -38,6 +38,7 @@ if ($result->num_rows === 1) {
     // Store session
     $_SESSION["team_id"]   = $row["team_id"];
     $_SESSION["team_name"] = $row["team_name"];
+    $_SESSION["last_activity"] = time();
 
     echo json_encode([
         "status" => "success",
