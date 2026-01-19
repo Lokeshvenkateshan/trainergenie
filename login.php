@@ -5,7 +5,7 @@ if (isset($_GET["timeout"])) {
 }
 
 if (isset($_SESSION["team_id"])) {
-    header("Location: dashboard.php");
+    header("Location: byteguess_start.php");
     exit;
 }
 ?>
@@ -57,7 +57,7 @@ document.getElementById("loginForm").addEventListener("submit", function(e) {
 
         if (data.status === "success") {
             setTimeout(() => {
-                window.location.href = "dashboard.php";
+                window.location.href = "byteguess_start.php";
             }, 1000);
         }
     });
