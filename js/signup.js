@@ -27,7 +27,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         if (data.status === "success") {
           setTimeout(() => {
-            window.location.href = "byteguess_start.php";
+            window.location.href = "byteguess_step1.php";
             
           }, 1000);
         }
