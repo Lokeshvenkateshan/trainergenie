@@ -21,89 +21,85 @@ $orgs = $stmt->get_result();
 
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>Step 1 - Organization</title>
-    <style>
-        body { font-family: Arial; background:#f4f4f4; }
-        .box {
-            background:#fff;
-            width:420px;
-            margin:60px auto;
-            padding:20px;
-            border-radius:6px;
-            box-shadow:0 0 10px #ccc;
-        }
-        input, textarea, select, button {
-            width:100%;
-            padding:8px;
-            margin-top:8px;
-        }
-        .divider {
-            text-align:center;
-            margin:15px 0;
-            font-weight:bold;
-            color:#666;
-        }
-    </style>
+    <link rel="stylesheet" href="./assets/styles/byteguess_step1.css">
 </head>
-<body>
 
-<form action="logout.php" method="post" style="position:absolute;top:20px;right:20px;">
-    <button style="background:#dc3545;color:#fff;">Logout</button>
+<body>
+<form action="logout.php" method="post" class="logout-wrap">
+    <button class="btn-logout">Logout</button>
 </form>
 
-<div class="box">
-    <h3>Step 1: Choose Organization</h3>
+<div class="page">
 
-    <label>Select Existing Organization</label>
-    <select id="existing_org">
-        <option value="">-- Select --</option>
-        <?php while ($row = $orgs->fetch_assoc()): ?>
-            <option value="<?= $row['ig_id'] ?>">
-                <?= htmlspecialchars($row['ig_name']) ?>
-            </option>
-        <?php endwhile; ?>
-    </select>
+    <div class="box">
+        <h3>Step 1: Choose ByteGuess Category</h3>
 
-    <div class="divider">OR</div>
+        <label>Select Existing ByteGuess Category</label>
+        <select id="existing_org">
+            <option value="">-- Select --</option>
+            <?php while ($row = $orgs->fetch_assoc()): ?>
+                <option value="<?= $row['ig_id'] ?>">
+                    <?= htmlspecialchars($row['ig_name']) ?>
+                </option>
+            <?php endwhile; ?>
+        </select>
 
-    <label>Create New Organization</label>
-    <input type="text" id="ig_name" placeholder="Organization name">
-    <textarea id="ig_description" placeholder="Description (optional)"></textarea>
+        <div class="divider">OR</div>
 
-    <button onclick="submitOrg()">Continue</button>
+        <label>Create ByteGuess Category</label>
+        <input type="text" id="ig_name" placeholder="Category name">
+        <textarea id="ig_description" placeholder="Description (optional)"></textarea>
+
+        <button class="primary-btn" onclick="submitOrg()">Continue</button>
+    </div>
+
+    <div class="preview-wrap">
+        <button class="btn-preview" onclick="handlePreview()">Preview Your Games</button>
+    </div>
+
 </div>
 
-<script>
-function submitOrg() {
-    const existing = document.getElementById("existing_org").value;
-    const name = document.getElementById("ig_name").value.trim();
-    const desc = document.getElementById("ig_description").value.trim();
 
-    if (!existing && name === "") {
-        alert("Select an organization or create a new one");
-        return;
-    }
-
-    fetch("byteguess_step1_action.php", {
-        method: "POST",
-        headers: {"Content-Type":"application/json"},
-        body: JSON.stringify({
-            ig_id: existing,
-            ig_name: name,
-            ig_description: desc
-        })
-    })
-    .then(res => res.json())
-    .then(data => {
-        if (data.status === "success") {
-            window.location.href = "byteguess_step2.php";
-        } else {
-            alert(data.message);
+    <script>
+        function handlePreview() {
+            window.location.href = "preview/ByteGuessCategories/categories.php";
         }
-    });
-}
-</script>
+
+        function submitOrg() {
+            const existing = document.getElementById("existing_org").value;
+            const name = document.getElementById("ig_name").value.trim();
+            const desc = document.getElementById("ig_description").value.trim();
+
+            if (!existing && name === "") {
+                alert("Select an organization or create a new one");
+                return;
+            }
+
+            fetch("byteguess_step1_action.php", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        ig_id: existing,
+                        ig_name: name,
+                        ig_description: desc
+                    })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.status === "success") {
+                        window.location.href = "byteguess_step2.php";
+                    } else {
+                        alert(data.message);
+                    }
+                });
+        }
+    </script>
 
 </body>
+
 </html>
