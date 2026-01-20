@@ -33,7 +33,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
       })
       .catch((err) => {
-        msg.style.color = "red";
+        msg.className = data.status === "success" ? "success" : "error";
         msg.innerText = "Something went wrong";
       });
   });
