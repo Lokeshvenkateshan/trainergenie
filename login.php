@@ -1,49 +1,60 @@
 <?php
 session_start();
-if (isset($_GET["timeout"])) {
-    echo "<p style='color:red;'>Session expired. Please login again.</p>";
-}
 
+/* Redirect if already logged in */
 if (isset($_SESSION["team_id"])) {
     header("Location: byteguess_step1.php");
     exit;
 }
-?>
 
+/* Session timeout message */
+$sessionMsg = "";
+if (isset($_GET["timeout"])) {
+    $sessionMsg = "Session expired. Please login again.";
+}
+?>
 <!DOCTYPE html>
 <html>
 <head>
     <title>Team Login</title>
+    <link rel="stylesheet" href="assets/styles/login.css">
 </head>
+
 <body>
 
-<h2>Team Login</h2>
+<?php if ($sessionMsg): ?>
+    <div class="session-msg"><?= htmlspecialchars($sessionMsg) ?></div>
+<?php endif; ?>
 
-<form id="loginForm">
+<div class="login-box">
 
-    <label>Email</label><br>
-    <input type="email" name="team_login" required><br><br>
+    <h2>Team Login</h2>
 
-    <label>Password</label><br>
-    <input type="password" name="team_password" required><br><br>
+    <form id="loginForm">
+        <label>Email</label>
+        <input type="email" name="team_login" required>
 
-    <button type="submit">Login</button>
-</form>
+        <label>Password</label>
+        <input type="password" name="team_password" required>
 
-<br>
+        <button type="submit" class="btn-login">Login</button>
+    </form>
 
-<!-- Signup button -->
-<button onclick="window.location.href='signup.php'">
-    Create New Account
-</button>
+    <button class="btn-signup" onclick="window.location.href='signup.php'">
+        Create New Account
+    </button>
 
-<p id="msg"></p>
+    <p id="msg"></p>
+</div>
 
 <script>
-document.getElementById("loginForm").addEventListener("submit", function(e) {
+document.getElementById("loginForm").addEventListener("submit", function (e) {
     e.preventDefault();
 
     const msg = document.getElementById("msg");
+    msg.innerText = "";
+    msg.className = "";
+
     const formData = new FormData(this);
 
     fetch("login_action.php", {
@@ -52,7 +63,7 @@ document.getElementById("loginForm").addEventListener("submit", function(e) {
     })
     .then(res => res.json())
     .then(data => {
-        msg.style.color = data.status === "success" ? "green" : "red";
+        msg.className = data.status === "success" ? "success" : "error";
         msg.innerText = data.message;
 
         if (data.status === "success") {
@@ -60,9 +71,14 @@ document.getElementById("loginForm").addEventListener("submit", function(e) {
                 window.location.href = "byteguess_step1.php";
             }, 1000);
         }
+    })
+    .catch(() => {
+        msg.className = "error";
+        msg.innerText = "Something went wrong. Please try again.";
     });
 });
 </script>
 
 </body>
 </html>
+ 

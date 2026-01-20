@@ -2,31 +2,40 @@
 <html>
 <head>
     <title>Team Signup</title>
+    <link rel="stylesheet" href="assets/styles/signup.css">
 </head>
+
 <body>
 
-<h2>Team Signup</h2>
+<div class="signup-box">
 
-<form id="signupForm">
+    <h2>Create Account</h2>
 
-    <label>Name</label><br>
-    <input type="text" name="team_name" required><br><br>
+    <form id="signupForm">
 
-    <label>Email</label><br>
-    <input type="email" name="team_login" required><br><br>
+        <label>Name</label>
+        <input type="text" name="team_name" required>
 
-    <label>Password</label><br>
-    <input type="password" name="team_password" id="team_password" required><br><br>
+        <label>Email</label>
+        <input type="email" name="team_login" required>
 
-    <label>Confirm Password</label><br>
-    <input type="password" name="confirm_password" id="confirm_password" required><br><br>
+        <label>Password</label>
+        <input type="password" name="team_password" id="team_password" required>
 
-    <button type="submit">Sign Up</button>
-</form>
+        <label>Confirm Password</label>
+        <input type="password" name="confirm_password" id="confirm_password" required>
 
-<p id="msg"></p>
+        <button type="submit" class="btn-signup">Sign Up</button>
+    </form>
 
-<!-- Load external JS -->
+    <button class="btn-login" onclick="window.location.href='login.php'">
+        Back to Login
+    </button>
+
+    <p id="msg"></p>
+
+</div>
+
 <script src="js/signup.js"></script>
 
 </body>
