@@ -14,11 +14,20 @@ $input = json_decode(file_get_contents("php://input"), true);
 
 $c = intval($input['c'] ?? 0);
 $d = intval($input['d'] ?? 0);
+$cg_name = trim($input['cg_name'] ?? '');
+$cg_des  = trim($input['cg_des'] ?? '');
+
 
 if ($c < 6 || $d <= 0 || $d > $c) {
     echo json_encode(["status"=>"error","message"=>"Invalid C / D values"]);
     exit;
 }
+
+if ($cg_name === '') {
+    echo json_encode(["status"=>"error","message"=>"Training game name required"]);
+    exit;
+}
+
 
 /* ===== STORE SESSION ===== */
 $_SESSION['c'] = $c;
@@ -26,10 +35,18 @@ $_SESSION['d'] = $d;
 
 /* ===== CREATE CARD GROUP (GAME) ===== */
 $stmt = $conn->prepare("
-    INSERT INTO card_group (cg_max, byteguess_pkid, cg_status)
-    VALUES (?, ?, 1)
+    INSERT INTO card_group
+    (cg_name, cg_description, cg_max, byteguess_pkid, cg_status)
+    VALUES (?, ?, ?, ?, 1)
 ");
-$stmt->bind_param("ii", $d, $_SESSION['ig_id']);
+
+$stmt->bind_param(
+    "ssii",
+    $cg_name,
+    $cg_des,
+    $d,
+    $_SESSION['ig_id']
+);
 $stmt->execute();
 
 $_SESSION['cg_id'] = $stmt->insert_id;

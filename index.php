@@ -3,7 +3,7 @@ session_start();
 
 if (isset($_SESSION["team_id"])) {
     // User already logged in
-    header("Location: dashboard.php");
+    header("Location: byteguess_step1.php");
     exit;
 } else {
     // Not logged in

@@ -37,7 +37,8 @@ function generateCards() {
     .then(data => {
         if (data.status === "success") {
             console.log("AI FULL RESPONSE (DEV):\n", data.ai_raw);
-            alert("Cards generated and saved");
+            // alert("Cards generated and saved");
+            window.location.href ="byteguess_step5.php";
         } else {
             alert(data.message);
         }

@@ -59,22 +59,40 @@ array_shift($blocks);
 
 $stmt = $conn->prepare("
     INSERT INTO card_unit
-    (cu_card_group_pkid, cu_sequence, cu_name, cu_image, cu_treasure_image, cu_status)
-    VALUES (?, ?, 'Card', 'cu_image.jpg', ?, 1)
+    (cu_card_group_pkid, cu_sequence, cu_name, cu_image, cu_description, cu_status)
+    VALUES (?, ?, ?, 'cu_image.jpg', ?, 1)
 ");
 
 $seq = 1;
-foreach ($blocks as $block) {
-    $lines = explode("\n", trim($block));
-    array_shift($lines);
-    $text = trim(preg_replace('/^\s*---\s*$/m','',implode("\n",$lines)));
 
-    if ($text) {
-        $stmt->bind_param("iis", $_SESSION['cg_id'], $seq, $text);
+foreach ($blocks as $block) {
+
+    $block = trim($block);
+
+    // Split lines
+    $lines = preg_split("/\r\n|\n|\r/", $block);
+
+    // Extract title from first line
+    // 
+    $titleLine = array_shift($lines);
+    $cardName = trim(str_replace("**", "", $titleLine));
+
+    // Remaining lines = card content
+    $cardText = trim(implode("\n", $lines));
+
+    if ($cardText && $cardName) {
+        $stmt->bind_param(
+            "iiss",
+            $_SESSION['cg_id'],
+            $seq,
+            $cardName,
+            $cardText
+        );
         $stmt->execute();
         $seq++;
     }
 }
+
 
 echo json_encode([
     "status"=>"success",
