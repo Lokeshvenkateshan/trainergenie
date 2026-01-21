@@ -8,7 +8,7 @@ if (!isset($_SESSION['team_id'])) {
 }
 
 $pageTitle = "Step 1 - ByteGuess";
-$pageCSS   = "assets/styles/byteguess_step1.css";
+$pageCSS   = "/assets/styles/byteguess_step1.css";
 
 require "layout/header.php";
 

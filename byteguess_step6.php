@@ -30,8 +30,8 @@ function generateAnswerKey() {
     .then(res => res.json())
     .then(data => {
         if (data.status === "success") {
-            console.log("Answer Key:");
-            console.log(data.answer_key);
+            // console.log("Answer Key:");
+            // console.log(data.answer_key);
             window.location.href ="byteguess_step7.php";
         } else {
             console.error("Error:", data.message);

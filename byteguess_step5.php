@@ -41,7 +41,7 @@ function generateHypotheses() {
     .then(res => res.json())
     .then(data => {
         if (data.status === "success") {
-            console.log("===== STEP 5 AI RESPONSE =====");
+            // console.log("===== STEP 5 AI RESPONSE =====");
             // console.log(data.ai_raw);
             window.location.href ="byteguess_step6.php";
         } else {

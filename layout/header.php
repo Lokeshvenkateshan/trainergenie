@@ -3,10 +3,11 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-/* 🔐 Protect all pages except login */
+define('BASE_PATH', '/trainergenie');
 $currentPage = basename($_SERVER['PHP_SELF']);
+
 if (!isset($_SESSION['team_id']) && $currentPage !== 'login.php') {
-    header("Location: /login.php");
+    header("Location: " . BASE_PATH . "/login.php");
     exit;
 }
 ?>
@@ -22,15 +23,18 @@ if (!isset($_SESSION['team_id']) && $currentPage !== 'login.php') {
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap" rel="stylesheet">
 
     <!-- Global CSS -->
-    <link rel="stylesheet" href="/assets/css/global.css">
+    <link rel="stylesheet" href="<?= BASE_PATH ?>/assets/css/global.css">
 
-    <!-- Page specific CSS -->
     <?php if (!empty($pageCSS)): ?>
-        <link rel="stylesheet" href="<?= $pageCSS ?>">
+        <link rel="stylesheet" href="<?= BASE_PATH . $pageCSS ?>">
     <?php endif; ?>
 </head>
 
 <body>
-    
 
-<?php include __DIR__ . "/../components/navbar.php"; ?>
+<?php
+if (isset($_SESSION['team_id'])) {
+    include __DIR__ . "/../components/navbar.php";
+}
+?>
+    
