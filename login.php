@@ -68,7 +68,7 @@ document.getElementById("loginForm").addEventListener("submit", function (e) {
 
         if (data.status === "success") {
             setTimeout(() => {
-                window.location.href = "byteguess_step1.php";
+                window.location.href = "index.php";
             }, 1000);
         }
     })

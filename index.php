@@ -1,12 +1,17 @@
 <?php
-session_start();
+$pageTitle = "TrainerHub Dashboard";
+$pageCSS   = ""; // optional dashboard css
 
-if (isset($_SESSION["team_id"])) {
-    // User already logged in
-    header("Location: byteguess_step1.php");
-    exit;
-} else {
-    // Not logged in
-    header("Location: login.php");
-    exit;
-}
+require "layout/header.php";
+?>
+
+<main class="dashboard" style="padding:30px;">
+    <h1>Welcome to TrainerHub</h1>
+    <p>Select an exercise or create a new one.</p>
+
+    <a href="byteguess_step1.php" class="primary-btn">
+        Start New Exercise
+    </a>
+</main>
+
+<?php require "layout/footer.php"; ?>

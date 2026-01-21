@@ -7,6 +7,11 @@ if (!isset($_SESSION['team_id'])) {
     exit;
 }
 
+$pageTitle = "Step 1 - ByteGuess";
+$pageCSS   = "assets/styles/byteguess_step1.css";
+
+require "layout/header.php";
+
 // Fetch existing orgs
 $stmt = $conn->prepare("
     SELECT ig_id, ig_name
@@ -18,19 +23,6 @@ $stmt->bind_param("i", $_SESSION['team_id']);
 $stmt->execute();
 $orgs = $stmt->get_result();
 ?>
-
-<!DOCTYPE html>
-<html>
-
-<head>
-    <title>Step 1 - Organization</title>
-    <link rel="stylesheet" href="./assets/styles/byteguess_step1.css">
-</head>
-
-<body>
-<form action="logout.php" method="post" class="logout-wrap">
-    <button class="btn-logout">Logout</button>
-</form>
 
 <div class="page">
 
@@ -62,44 +54,35 @@ $orgs = $stmt->get_result();
 
 </div>
 
+<script>
+function handlePreview() {
+    window.location.href = "preview/ByteGuessCategories/categories.php";
+}
 
-    <script>
-        function handlePreview() {
-            window.location.href = "preview/ByteGuessCategories/categories.php";
+function submitOrg() {
+    const existing = existing_org.value;
+    const name = ig_name.value.trim();
+    const desc = ig_description.value.trim();
+
+    if (!existing && name === "") {
+        alert("Select or create a category");
+        return;
+    }
+
+    fetch("byteguess_step1_action.php", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ig_id: existing, ig_name: name, ig_description: desc })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.status === "success") {
+            window.location.href = "byteguess_step2.php";
+        } else {
+            alert(data.message);
         }
+    });
+}
+</script>
 
-        function submitOrg() {
-            const existing = document.getElementById("existing_org").value;
-            const name = document.getElementById("ig_name").value.trim();
-            const desc = document.getElementById("ig_description").value.trim();
-
-            if (!existing && name === "") {
-                alert("Select an organization or create a new one");
-                return;
-            }
-
-            fetch("byteguess_step1_action.php", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({
-                        ig_id: existing,
-                        ig_name: name,
-                        ig_description: desc
-                    })
-                })
-                .then(res => res.json())
-                .then(data => {
-                    if (data.status === "success") {
-                        window.location.href = "byteguess_step2.php";
-                    } else {
-                        alert(data.message);
-                    }
-                });
-        }
-    </script>
-
-</body>
-
-</html>
+<?php require "layout/footer.php"; ?>
