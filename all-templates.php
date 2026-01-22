@@ -27,7 +27,7 @@ require "./data/templates.php";
                 <div class="card-body">
                     <h3><?= $template['title'] ?></h3>
                     <p><?= $template['desc'] ?></p>
-                    <button onclick="window.location.href='byteguess_step1.php'">Create Session</button>
+                    <button onclick="window.location.href='byteguess_exercise.php'">Create Session</button>
                 </div>
 
             </div>

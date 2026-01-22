@@ -17,7 +17,7 @@ $currentPage = basename($_SERVER['PHP_SELF']);
            Home
         </a>
 
-        <a href="byteguess_step1.php"
+        <a href="byteguess_exercise.php"
            class="<?= $currentPage === 'byteguess_step1.php' ? 'active' : '' ?>">
            My Exercises
         </a>
