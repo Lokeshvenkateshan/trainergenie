@@ -1,41 +1,73 @@
 <?php
 $pageTitle = "All Templates";
-$pageCSS   = "../assets/styles/index.css";
+$pageCSS   = "../assets/styles/all-templates.css";
 
 require "layout/header.php";
-require "./data/templates.php";
+require "include/dataconnect.php";
 
+/* Fetch all exercise templates */
+$stmt = $conn->prepare("
+    SELECT ex_id, ex_name, ex_des, ex_tag, ex_image, ex_type
+    FROM genie_exercises
+    ORDER BY ex_id ASC
+");
+$stmt->execute();
+$result = $stmt->get_result();
+
+/* Exercise routing map */
+$exerciseRoutes = [
+    1 => "digihunt_exercise.php",     // Treasure
+    2 => "byteguess_exercise.php",    // Card
+    3 => "pixelquest_exercise.php",   // Survival
+    4 => "bitbargain_exercise.php"    // Bargain
+];
 ?>
 
-
-
 <section class="templates-section">
+ <div class="back-div">
+ <a href="index.php" class="back-btn"> <img src="./upload-images/utils/back.png"> Back</a>
+
+ </div>
+
 
     <div class="section-header">
         <h2>All Exercise Templates</h2>
     </div>
 
     <div class="templates-grid">
-        <?php foreach ($templates as $template): ?>
-            <div class="template-card">
 
-                <div class="card-img">
-                    <span class="tag"><?= $template['tag'] ?></span>
-                    <img src="<?= $template['image'] ?>" alt="">
+        <?php if ($result->num_rows === 0): ?>
+            <p>No templates available.</p>
+        <?php else: ?>
+            <?php while ($template = $result->fetch_assoc()): ?>
+
+                <?php
+                $redirectPage = $exerciseRoutes[$template['ex_type']] ?? "index.php";
+                ?>
+
+                <div class="template-card">
+
+                    <div class="card-img">
+                        <span class="tag"><?= htmlspecialchars($template['ex_tag']) ?></span>
+                        <img src="./upload-images/<?= htmlspecialchars($template['ex_image']) ?>" alt="">
+                    </div>
+
+                    <div class="card-body">
+                        <h3><?= htmlspecialchars($template['ex_name']) ?></h3>
+                        <p><?= htmlspecialchars($template['ex_des']) ?></p>
+
+                        <button onclick="window.location.href='<?= $redirectPage ?>?ex_id=<?= $template['ex_id'] ?>'">
+                            Create Session
+                        </button>
+                    </div>
+
                 </div>
 
-                <div class="card-body">
-                    <h3><?= $template['title'] ?></h3>
-                    <p><?= $template['desc'] ?></p>
-                    <button onclick="window.location.href='byteguess_exercise.php'">Create Session</button>
-                </div>
+            <?php endwhile; ?>
+        <?php endif; ?>
 
-            </div>
-        <?php endforeach; ?>
     </div>
 
 </section>
 
-
 <?php require "layout/footer.php"; ?>
-
