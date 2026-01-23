@@ -20,7 +20,7 @@ $result = $stmt->get_result();
 
 <div class="index-container">
     <div class="bg-img-container">
-        <img class="bg-pic" src="./assets/images/index-bg-pic.png" alt="index-bg-pic">
+        <img class="bg-pic" src="./upload-images/index-bg-pic.png" alt="index-bg-pic">
 
 
         <div class="bg-text">
