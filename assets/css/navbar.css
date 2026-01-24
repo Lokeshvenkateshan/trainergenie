@@ -123,10 +123,6 @@
     transform: translateY(1px);
 }
 
-/* ================================
-   RESPONSIVE (Optional)
-   ================================ */
-
 @media (max-width: 768px) {
     .nav-center {
         gap: 18px;

@@ -2,12 +2,12 @@
 $currentPage = basename($_SERVER['PHP_SELF']);
 ?>
 
-<link rel="stylesheet" href="assets/css/navbar.css">
+<link rel="stylesheet" href="/trainergenie/assets/css/navbar.css">
 
 <nav class="navbar">
     <!-- LEFT : LOGO -->
     <div class="nav-left">
-        <img src="assets/images/logo.png" class="logo" alt="Logo">
+        <img src="/trainergenie/assets/images/logo.png" class="logo" alt="Logo">
     </div>
 
     <!-- CENTER : MENU -->
@@ -18,7 +18,7 @@ $currentPage = basename($_SERVER['PHP_SELF']);
         </a>
 
         <a href="byteguess_exercise.php"
-           class="<?= $currentPage === 'byteguess_step1.php' ? 'active' : '' ?>">
+           class="<?= $currentPage === 'byteguess_exercise.php' ? 'active' : '' ?>">
            My Exercises
         </a>
 
@@ -35,7 +35,7 @@ $currentPage = basename($_SERVER['PHP_SELF']);
 
     <!-- RIGHT : PROFILE + LOGOUT -->
     <div class="nav-right">
-        <img src="assets/images/user.png" class="nav-user" alt="User">
+        <img src="/trainergenie/assets/images/user.png" class="nav-user" alt="User">
 
         <form action="logout.php" method="post">
             <button type="submit" class="logout-btn">Logout</button>

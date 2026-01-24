@@ -1,0 +1,73 @@
+.logic-wrap {
+    max-width: 900px;
+    margin: 30px auto;
+    padding: 0 24px;
+}
+
+/* HEADER */
+.editor-header {
+    margin-bottom: 24px;
+}
+
+.editor-header h1 {
+    font-size: 22px;
+    margin-top: 6px;
+}
+
+.back-link {
+    font-size: 14px;
+    color: #2563eb;
+    text-decoration: none;
+}
+
+/* CARD */
+.logic-card {
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 24px 26px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+}
+
+/* LABEL */
+.logic-card label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #475569;
+    margin-bottom: 8px;
+    display: block;
+}
+
+/* TEXTAREA */
+.logic-card textarea {
+    width: 100%;
+    min-height: 220px;
+    padding: 14px 16px;
+    border-radius: 12px;
+    border: 1px solid #e5e7eb;
+    background: #f8fafc;
+    font-size: 15px;
+    line-height: 1.6;
+    resize: vertical;
+}
+
+/* ACTIONS */
+.editor-actions {
+    display: flex;
+    justify-content: center;
+    margin-top: 28px;
+}
+
+/* BUTTON */
+.btn.primary {
+    padding: 12px 30px;
+    font-size: 14px;
+    border-radius: 12px;
+    background: #2563eb;
+    color: #ffffff;
+    border: none;
+    cursor: pointer;
+}
+
+.btn.primary:hover {
+    background: #1d4ed8;
+}

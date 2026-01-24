@@ -1,5 +1,5 @@
 <?php
-$pageTitle = "TrainerHub Dashboard";
+$pageTitle = "TrainerGenie Dashboard";
 $pageCSS   = "./assets/styles/index.css";
 
 require "layout/header.php";

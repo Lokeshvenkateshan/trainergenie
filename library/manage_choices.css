@@ -1,0 +1,99 @@
+/* PAGE WRAPPER */
+.choices-wrap {
+    max-width: 1100px;
+    margin: 30px auto;
+    padding: 0 24px;
+}
+
+/* HEADER */
+.editor-header {
+    margin-bottom: 28px;
+}
+
+.editor-header h1 {
+    font-size: 22px;
+    margin-top: 6px;
+}
+
+.back-link {
+    font-size: 14px;
+    color: #2563eb;
+    text-decoration: none;
+}
+
+/* CENTER CONTAINER */
+.answers-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;      /* 🔥 CENTER ALL CARDS */
+    gap: 20px;
+}
+
+/* OUTER CARD (SPACING HOLDER) */
+.answer-card {
+    width: 100%;
+    display: flex;
+    justify-content: center;  /* 🔥 CENTER INNER CARD */
+}
+
+/* INNER CARD (ACTUAL VISUAL CARD) */
+.answer-inner {
+    width: 100%;
+    max-width: 760px;         /* 🔥 SIDE SPACING LIKE IMAGE */
+    background: #ffffff;
+    border-radius: 14px;
+    padding: 20px 24px;
+
+    box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+
+    border-left: 4px solid #22c55e; /* subtle green accent */
+}
+
+/* LABELS */
+.answer-inner label {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: #64748b;
+    margin-bottom: 6px;
+    display: block;
+}
+
+/* INPUTS */
+.answer-inner input,
+.answer-inner textarea {
+    width: 100%;
+    padding: 12px 14px;
+    border-radius: 10px;
+    border: 1px solid #e5e7eb;
+    background: #f8fafc;
+    font-size: 15px;
+    color: #111827;
+    margin-bottom: 16px;
+}
+
+.answer-inner textarea {
+    resize: vertical;
+}
+
+/* ACTIONS */
+.editor-actions {
+    display: flex;
+    justify-content: center;
+    margin-top: 32px;
+}
+
+/* BUTTON */
+.btn.primary {
+    padding: 12px 28px;
+    font-size: 14px;
+    border-radius: 12px;
+    background: #2563eb;
+    color: #ffffff;
+    border: none;
+    cursor: pointer;
+}
+
+.btn.primary:hover {
+    background: #1d4ed8;
+}
