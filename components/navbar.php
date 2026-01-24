@@ -12,17 +12,17 @@ $currentPage = basename($_SERVER['PHP_SELF']);
 
     <!-- CENTER : MENU -->
     <div class="nav-center">
-        <a href="index.php"
+        <a href="/trainergenie/index.php"
            class="<?= $currentPage === 'index.php' ? 'active' : '' ?>">
            Home
         </a>
 
-        <a href="byteguess_exercise.php"
+        <a href="/trainergenie/byteguess_exercise.php"
            class="<?= $currentPage === 'byteguess_exercise.php' ? 'active' : '' ?>">
            My Exercises
         </a>
 
-        <a href="library.php"
+        <a href="/trainergenie/library.php"
            class="<?= $currentPage === 'library.php' ? 'active' : '' ?>">
            Library
         </a>
