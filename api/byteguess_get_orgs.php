@@ -12,7 +12,7 @@ if (!isset($_SESSION['team_id'])) {
 $team_id = $_SESSION['team_id'];
 
 $stmt = $conn->prepare("
-    SELECT ig_id, ig_name,
+    SELECT ig_id, ig_name
     FROM byteguess_category
     WHERE ig_team_pkid = ? AND ig_status = 1
     ORDER BY ig_name

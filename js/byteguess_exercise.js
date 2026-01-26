@@ -1,5 +1,4 @@
-document.addEventListener("DOMContentLoaded", initWizard);
-
+document.addEventListener("DOMContentLoaded", loadStep1);
 
 let ui_id = null;
 
