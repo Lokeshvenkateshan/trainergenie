@@ -1,361 +1,342 @@
-document.addEventListener("DOMContentLoaded", () => {
-    loadStep1();
-});
+document.addEventListener("DOMContentLoaded", initWizard);
+
+
+let ui_id = null;
+
+/* =========================
+   HELPERS
+========================= */
+
+function val(id) {
+    const el = document.getElementById(id);
+    return el ? el.value.trim() : "";
+}
 
 function setStep(n) {
     document.querySelectorAll(".step-dot").forEach(d => d.classList.remove("active"));
-    const dot = document.getElementById("step-dot-" + n);
+    const dot = document.getElementById(`step-dot-${n}`);
     if (dot) dot.classList.add("active");
 }
 
 function showLoader(show) {
-    const loader = document.getElementById("loader");
-    if (loader) loader.style.display = show ? "block" : "none";
+    const l = document.getElementById("loader");
+    if (l) l.style.display = show ? "block" : "none";
+}
+
+/* =========================
+   SAFE FETCH JSON
+========================= */
+async function safeJSON(response) {
+    const text = await response.text();
+    try {
+        return JSON.parse(text);
+    } catch {
+        console.error("Invalid JSON from server:", text);
+        throw new Error("Invalid JSON");
+    }
+}
+
+/* =========================
+   SAVE STEP (COMMON)
+========================= */
+function saveStep(step, data, onSuccess) {
+    showLoader(true);
+
+    fetch("api/byteguess_save_step.php", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ui_id, step, data })
+    })
+    .then(safeJSON)
+    .then(d => {
+        if (d.status === "success") {
+            if (d.ui_id) ui_id = d.ui_id;
+            onSuccess && onSuccess();
+        } else {
+            alert(d.message || "Save failed");
+        }
+    })
+    .catch(() => alert("Server error (check PHP logs)"))
+    .finally(() => showLoader(false));
 }
 
 /* =========================
    STEP 1 – ORGANIZATION
 ========================= */
-
 function loadStep1() {
     setStep(1);
     showLoader(true);
 
-    fetch("byteguess_get_orgs.php")
-        .then(r => r.json())
-        .then(data => {
-            let options = `<option value=""> Select Organization </option>`;
-            data.forEach(o => {
+    fetch("api/byteguess_get_orgs.php")
+        .then(safeJSON)
+        .then(orgs => {
+
+            let options = `<option value="">-- Create New Organization --</option>`;
+            orgs.forEach(o => {
                 options += `<option value="${o.ig_id}">${o.ig_name}</option>`;
             });
 
             document.getElementById("wizard-box").innerHTML = `
-                <h3>Organization</h3>
-                <p class="txt1" style="text-align:center;">Select Organization</p>
-                <select class="section-label"id="org_select">${options}</select>
-                <hr>
-                <br>
-                <p class="txt1" style="text-align:center;">Or Create New</p>
-                <br>
-                <label>Organization Name</label>
-                <input id="org_name" placeholder="Eg">
-                <br>
-                <label for="org_desc">Description (optional)</label>
-                <textarea id="org_desc" placeholder="Eg"></textarea>
-                <button onclick="submitOrg()">Next</button>
+                <h3>Step 1: Organization</h3>
+
+                <label>Select Organization</label>
+                <select id="org_id" onchange="toggleOrgFields()">
+                    ${options}
+                </select>
+
+                <div id="new-org-fields" style="display:none;">
+                    <label>Organization Name</label>
+                    <input
+                        id="org_name"
+                        placeholder="e.g., Acme Technologies"
+                    >
+
+                    <label>Organization Description</label>
+                    <textarea
+                        id="org_description"
+                        rows="3"
+                        placeholder="e.g., A company focused on enterprise training"
+                    ></textarea>
+                </div>
+
+                <button onclick="submitStep1()">Next</button>
             `;
+
+            toggleOrgFields();
         })
-        .catch(err => console.error("Error loading orgs:", err))
+        .catch(() => alert("Failed to load organizations"))
         .finally(() => showLoader(false));
 }
 
-function submitOrg() {
-    const orgSelect = document.getElementById("org_select");
-    const orgNameInput = document.getElementById("org_name");
-    const orgDescInput = document.getElementById("org_desc");
-
-    const orgId = orgSelect.value;
-    const name = orgNameInput.value.trim();
-    const desc = orgDescInput.value.trim();
-
-    let body;
-    let url;
-
-    if (orgId) {
-        url = "byteguess_set_org.php";
-        body = JSON.stringify({ ig_id: orgId });
-    } else {
-        if (!name) { 
-            alert("Organization name required"); 
-            return; // Exit early if validation fails
-        }
-        url = "byteguess_start_action.php";
-        body = `ig_name=${encodeURIComponent(name)}&ig_description=${encodeURIComponent(desc)}`;
-    }
-
-    showLoader(true);
-
-    fetch(url, {
-        method: "POST",
-        headers: orgId ? { "Content-Type":"application/json" } :
-                         { "Content-Type":"application/x-www-form-urlencoded" },
-        body
-    })
-    .then(r => r.json())
-    .then(d => {
-        if (d.status === "success") loadStep2();
-        else alert(d.message);
-    })
-    .finally(() => showLoader(false));
-}
 
 /* =========================
-   STEP 2 – GAME STRUCTURE
+   TOGGLE NEW ORG FIELDS
 ========================= */
+function toggleOrgFields() {
+    const orgId = val("org_id");
+    document.getElementById("new-org-fields").style.display =
+        orgId ? "none" : "block";
+}
 
+
+/* =========================
+   SUBMIT STEP 1
+========================= */
+function submitStep1() {
+    const org_id = val("org_id");
+
+    let payload = { org_id };
+
+    // NEW ORG FLOW
+    if (!org_id) {
+        const org_name = val("org_name");
+        const org_description = val("org_description");
+
+        if (!org_name || !org_description) {
+            alert("Organization name and description are required");
+            return;
+        }
+
+        payload.org_name = org_name;
+        payload.org_description = org_description;
+    }
+
+    saveStep(1, payload, loadStep2);
+}
+
+
+
+/* =========================
+   STEP 2 – GAME SETUP
+========================= */
 function loadStep2() {
     setStep(2);
+
     document.getElementById("wizard-box").innerHTML = `
-        <h3>Game Structure</h3>
+        <h3>Step 2: Game Setup</h3>
 
-        <label for="cg_name">Training Game Name</label>
-        <input id="cg_name" placeholder="Eg: Memory Match">
+        <label>Game Name</label>
+        <input id="ui_game_name" placeholder="e.g., Cyber Awareness Challenge">
 
-        <label for="cg_des">Description</label>
-        <textarea id="cg_des" placeholder="Eg: Card matching based training game"></textarea>
+        <label>Total Cards</label>
+        <input id="ui_total_cards" type="number" min="6" placeholder="e.g., 20">
 
-        <label for="c">Total Cards (C)</label>
-        <input id="c" type="number" min="6" placeholder="Eg: 10">
-
-        <label for="d">Cards Drawn (D)</label>
-        <input id="d" type="number" placeholder="Eg: 6">
+        <label>Cards Drawn per Round</label>
+        <input id="ui_cards_drawn" type="number" placeholder="e.g., 5">
 
         <button onclick="submitStep2()">Next</button>
-
     `;
 }
 
-function submitStep2() {
-    showLoader(true);
 
-    fetch("byteguess_step2_action.php", {
-        method:"POST",
-        headers:{ "Content-Type":"application/json" },
-        body: JSON.stringify({
-            cg_name: document.getElementById("cg_name").value,
-            cg_des: document.getElementById("cg_des").value,
-            c: document.getElementById("c").value,
-            d: document.getElementById("d").value
-        })
-    })
-    .then(r=>r.json())
-    .then(d=>{
-        if(d.status==="success") loadStep3();
-        else alert(d.message);
-    })
-    .finally(()=>showLoader(false));
+function submitStep2() {
+    const name = val("ui_game_name");
+    const c = parseInt(val("ui_total_cards"));
+    const d = parseInt(val("ui_cards_drawn"));
+
+    if (!name || !c || !d || d > c) {
+        alert("Invalid game setup");
+        return;
+    }
+
+    saveStep(2, {
+        ui_game_name: name,
+        ui_total_cards: c,
+        ui_cards_drawn: d
+    }, loadStep3);
 }
 
 /* =========================
-   STEP 3 – GAME CONTEXT
+   STEP 3 – CONTEXT
 ========================= */
-
 function loadStep3() {
     setStep(3);
 
     document.getElementById("wizard-box").innerHTML = `
-    <h3>Game Context</h3>
+        <h3>Step 3: Game Context</h3>
 
-    <label for="A">Training Topic / Participants</label>
-    <input id="A" placeholder="Eg: Supply chain inventory management">
+        <label>Training Topic</label>
+        <input id="ui_training_topic" placeholder="e.g., Secure Coding Practices">
 
-    <label for="A1">Industry</label>
-    <input id="A1" placeholder="Eg: retail">
+        <label>Industry</label>
+        <input id="ui_industry" placeholder="e.g., IT / Banking / Healthcare">
 
-    <label for="B">Game Objective</label>
-    <input id="B" placeholder="Eg: to appreciate cross functional collaboration">
+        <label>Objective</label>
+        <input id="ui_objective" placeholder="e.g., Improve awareness of threats">
 
-    <label for="B1">Underlying Hypothesis</label>
-    <input id="B1" placeholder="Eg: appreciate cross functional collaboration in demand planning">
+        <label>Hypothesis</label>
+        <input id="ui_hypothesis" placeholder="e.g., Practice improves retention">
 
-    <button onclick="submitStep3()">Next</button>
-
+        <button onclick="submitStep3()">Next</button>
     `;
 }
 
-function submitStep3() {
-    showLoader(true);
 
-    fetch("byteguess_step3_action.php", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-            A: document.getElementById("A").value,
-            A1: document.getElementById("A1").value,
-            B: document.getElementById("B").value,
-            B1: document.getElementById("B1").value
-        })
-    })
-    .then(r => r.json())
-    .then(d => {
-        if (d.status === "success") loadStep4();
-        else alert(d.message);
-    })
-    .finally(() => showLoader(false));
+function submitStep3() {
+    saveStep(3, {
+        ui_training_topic: val("ui_training_topic"),
+        ui_industry: val("ui_industry"),
+        ui_objective: val("ui_objective"),
+        ui_hypothesis: val("ui_hypothesis")
+    }, loadStep4);
 }
 
 /* =========================
-   STEP 4 – GENERATE CARDS
+   STEP 4 – CARD STRUCTURE
 ========================= */
-
 function loadStep4() {
     setStep(4);
 
     document.getElementById("wizard-box").innerHTML = `
-        <h3>Card Structure</h3>
-        <label for="E">Card structure</label>
-        <input id="E" placeholder=" Eg: statistics and others">
-        <button onclick="submitStep4()">Generate Cards</button>
+        <h3>Step 4: Card Structure</h3>
+
+        <label>Card Content Structure</label>
+        <input
+            id="ui_card_structure"
+            placeholder="e.g., Facts, Signals, Clues"
+        >
+
+        <button onclick="submitStep4()">Next</button>
     `;
 }
 
 function submitStep4() {
-    showLoader(true);
-
-    fetch("byteguess_step4_action.php", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-            E: document.getElementById("E").value
-        })
-    })
-    .then(r => r.json())
-    .then(d => {
-        if (d.status === "success") loadStep5();
-        else alert(d.message);
-    })
-    .finally(() => showLoader(false));
+    saveStep(4, {
+        ui_card_structure: val("ui_card_structure")
+    }, loadStep5);
 }
 
 /* =========================
-   STEP 5 – HYPOTHESIS OPTIONS
+   STEP 5 – OPTIONS
 ========================= */
-
-let f1 = 10;
-let f2 = 5;
-let f3 = 1;
-
 function loadStep5() {
     setStep(5);
 
     document.getElementById("wizard-box").innerHTML = `
-      <div class="Points to Answers">
+        <h3>Step 5: Options Mix</h3>
 
-        <div class="option-card correct">
-          <div class="option-info">
-            <h4>Fully Correct Options</h4>
-            <p>Answers that award 100% points.</p>
-          </div>
-          <div class="counter">
-            <button onclick="changeF('f1', -1)">−</button>
-            <span id="f1">${f1}</span>
-            <button onclick="changeF('f1', 1)">+</button>
-          </div>
-        </div>
+        <label>Fully Correct Options</label>
+        <input id="opt_full" type="number" value="1">
 
-        <div class="option-card partial">
-          <div class="option-info">
-            <h4>Partially Correct Options</h4>
-            <p>Answers that award partial points.</p>
-          </div>
-          <div class="counter">
-            <button onclick="changeF('f2', -1)">−</button>
-            <span id="f2">${f2}</span>
-            <button onclick="changeF('f2', 1)">+</button>
-          </div>
-        </div>
+        <label>Partially Correct Options</label>
+        <input id="opt_partial" type="number" value="1">
 
-        <div class="option-card incorrect">
-          <div class="option-info">
-            <h4>Incorrect Options</h4>
-            <p>Distractors that award 0 points.</p>
-          </div>
-          <div class="counter">
-            <button onclick="changeF('f3', -1)">−</button>
-            <span id="f3">${f3}</span>
-            <button onclick="changeF('f3', 1)">+</button>
-          </div>
-        </div>
+        <label>Incorrect Options</label>
+        <input id="opt_wrong" type="number" value="2">
 
-        <button class="primary-btn" onclick="submitStep5()">Generate Options</button>
-
-      </div>
+        <button onclick="submitStep5()">Next</button>
     `;
 }
 
-function changeF(key, delta) {
-    if (key === "f1") f1 = Math.max(0, f1 + delta);
-    if (key === "f2") f2 = Math.max(0, f2 + delta);
-    if (key === "f3") f3 = Math.max(0, f3 + delta);
-
-    document.getElementById("f1").innerText = f1;
-    document.getElementById("f2").innerText = f2;
-    document.getElementById("f3").innerText = f3;
-}
 
 function submitStep5() {
-    showLoader(true);
-
-    fetch("byteguess_step5_action.php", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ f1, f2, f3 })
-    })
-    .then(r => r.json())
-    .then(d => {
-        if (d.status === "success") loadStep6();
-        else alert(d.message);
-    })
-    .finally(() => showLoader(false));
+    saveStep(5, {
+        ui_options: {
+            full: val("opt_full"),
+            partial: val("opt_partial"),
+            wrong: val("opt_wrong")
+        }
+    }, loadStep6);
 }
 
 /* =========================
-   STEP 6 – ANSWER KEY
+   STEP 6 – GENERATE
 ========================= */
-
 function loadStep6() {
     setStep(6);
 
     document.getElementById("wizard-box").innerHTML = `
-        <h3>Generate Answer Key</h3>
-        <button onclick="submitStep6()">Generate Answer Key</button>
+        <h3>Step 6: Generate Exercise</h3>
+
+        <p style="margin-bottom:16px;color:#475569;">
+            Review all inputs and generate the exercise.
+        </p>
+
+        <button id="genBtn" onclick="generateExercise()">Generate</button>
+        <p id="genStatus" style="margin-top:12px;color:#64748b;"></p>
     `;
 }
 
-function submitStep6() {
+
+async function generateExercise() {
+    const btn = document.getElementById("genBtn");
+    const status = document.getElementById("genStatus");
+
+    btn.disabled = true;
+    status.innerText = "Generating exercise… this may take up to 30 seconds.";
     showLoader(true);
 
-    fetch("byteguess_step6_action.php", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" }
-    })
-    .then(r => r.json())
-    .then(d => {
-        if (d.status === "success") loadStep7();
-        else alert(d.message);
-    })
-    .finally(() => showLoader(false));
-}
+    try {
+        const res = await fetch("api/byteguess_generate_game.php", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ ui_id })
+        });
 
-/* =========================
-   STEP 7 – GAME GUIDELINES
-========================= */
+        const text = await res.text();   // 👈 CRITICAL
+        let data;
 
-function loadStep7() {
-    setStep(7);
-
-    document.getElementById("wizard-box").innerHTML = `
-        <h3>Game Guidelines</h3>
-        <button onclick="submitStep7()">Generate Guidelines</button>
-    `;
-}
-
-function submitStep7() {
-    showLoader(true);
-
-    fetch("byteguess_step7_action.php", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" }
-    })
-    .then(r => r.json())
-    .then(d => {
-        if (d.status === "success") {
-            document.getElementById("wizard-box").innerHTML = `
-                <h2>Exercise Created Successfully </h2>
-            `;
-        } else {
-            alert(d.message);
+        try {
+            data = JSON.parse(text);
+        } catch {
+            console.error("RAW SERVER RESPONSE:", text);
+            throw new Error("Invalid JSON from server");
         }
-    })
-    .finally(() => showLoader(false));
+
+        if (data.status !== "success") {
+            throw new Error(data.message || "Generation failed");
+        }
+
+        document.getElementById("wizard-box").innerHTML = `
+            <h3>Exercise Created Successfully 🎉</h3>
+            <p>Exercise ID: ${data.cg_id}</p>
+        `;
+
+    } catch (err) {
+        alert("Generation failed. Check server logs.");
+        console.error(err);
+        btn.disabled = false;
+    } finally {
+        showLoader(false);
+    }
 }

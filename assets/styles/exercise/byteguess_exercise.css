@@ -1,230 +1,220 @@
-.exercise-wrapper {
-    max-width: 700px;
-    margin: 40px auto;
-}
-
-.step-bar {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 25px;
-}
-
-.step-dot {
-    width: 35px;
-    height: 35px;
-    border-radius: 50%;
-    background: #dcdcdc;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
-}
-
-.step-dot.active {
-    background: #007bff;
-    color: #fff;
-}
-
-.wizard-box {
-    background: #fff;
-    padding: 25px;
-    border-radius: 6px;
-    box-shadow: 0 0 10px rgba(0,0,0,.1);
-}
-
-.wizard-box input,
-.wizard-box textarea,
-.wizard-box select,
-.wizard-box button {
-    width: 100%;
-    padding: 8px;
-    margin-top: 10px;
-}
-
-.wizard-box button {
-    width: auto;
-    min-width: 120px;
-    padding: 10px 24px;
-    margin-top: 15px;
-}
-
-
-.wizard-box button {
-    background: #007bff;
-    color: #fff;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-}
-
-.wizard-box button {
-    display: block;
-    margin: 20px auto 0;
-}
-
-
-.loader {
-    display: none;
-    margin-top: 15px;
-    text-align: center;
-    font-weight: bold;
-}
 /* ======================================================
-   GLOBAL INPUT POLISH
+   PAGE
 ====================================================== */
-input, textarea, select {
-    width: 100%;
-    padding: 12px 14px;
-    border-radius: 10px;
-    border: 1px solid #d1d5db;
-    font-size: 15px;
-    outline: none;
-    transition: border .2s, box-shadow .2s;
+.exercise-container {
+    background: #f8fafc;
+    min-height: 100vh;
+    padding: 40px 20px;
+    display: flex;
+    justify-content: center;
+    font-family: Inter, system-ui, -apple-system, sans-serif;
 }
 
-input:focus, textarea:focus, select:focus {
+.wizard {
+    width: 100%;
+    max-width: 900px;
+}
+
+/* ======================================================
+   WIZARD STEPS
+====================================================== */
+.wizard-steps {
+    margin-bottom: 28px;
+}
+
+/* hide logic-only dots */
+.step-dot {
+    display: none;
+}
+
+/* ======================================================
+   STEP TEXT (Step X of 6)
+====================================================== */
+.step-text {
+    font-size: 14px;
+    font-weight: 600;
+    color: #2563eb;
+    margin-bottom: 8px;
+}
+
+.step-label {
+    display: none;
+}
+
+/* show current step text */
+#step-dot-1.active ~ .step-text [data-step="1"],
+#step-dot-2.active ~ .step-text [data-step="2"],
+#step-dot-3.active ~ .step-text [data-step="3"],
+#step-dot-4.active ~ .step-text [data-step="4"],
+#step-dot-5.active ~ .step-text [data-step="5"],
+#step-dot-6.active ~ .step-text [data-step="6"] {
+    display: inline;
+}
+
+/* ======================================================
+   PROGRESS BAR (THIS FIXES IT)
+====================================================== */
+.progress-bar {
+    width: 100%;
+    height: 8px;
+    background: #e5e7eb;
+    border-radius: 999px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    width: 0%;
+    background: #2563eb;
+    border-radius: 999px;
+    transition: width 0.35s ease;
+}
+
+/* step → width mapping */
+#step-dot-1.active ~ .progress-bar .progress-fill { width: 16.66%; }
+#step-dot-2.active ~ .progress-bar .progress-fill { width: 33.33%; }
+#step-dot-3.active ~ .progress-bar .progress-fill { width: 50%; }
+#step-dot-4.active ~ .progress-bar .progress-fill { width: 66.66%; }
+#step-dot-5.active ~ .progress-bar .progress-fill { width: 83.33%; }
+#step-dot-6.active ~ .progress-bar .progress-fill { width: 100%; }
+
+/* ======================================================
+   MAIN CARD
+====================================================== */
+#wizard-box {
+    background: #ffffff;
+    border-radius: 20px;
+    padding: 32px;
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+}
+
+#wizard-box h3 {
+    font-size: 34px;
+    font-weight: 800;
+    color: #0f172a;
+    margin-bottom: 12px;
+}
+
+/* ======================================================
+   LABELS
+====================================================== */
+#wizard-box label {
+    font-size: 15px;
+    font-weight: 700;
+    color: #0f172a;
+    display: block;
+    margin-top: 26px;
+    margin-bottom: 8px;
+}
+
+/* ======================================================
+   INPUTS
+====================================================== */
+#wizard-box input,
+#wizard-box textarea,
+#wizard-box select {
+    width: 100%;
+    padding: 16px 18px;
+    border-radius: 16px;
+    border: 1px solid #e2e8f0;
+    background: #f8fafc;
+    font-size: 16px;
+}
+
+#wizard-box input:focus,
+#wizard-box textarea:focus,
+#wizard-box select:focus {
+    outline: none;
+    background: #ffffff;
     border-color: #2563eb;
-    box-shadow: 0 0 0 3px rgba(37,99,235,.15);
+    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.15);
 }
 
 textarea {
-    resize: vertical;
-    min-height: 80px;
-}
-
-/* ======================================================
-   STEP PROGRESS DOTS
-====================================================== */
-.step-dot {
-    width: 42px;
-    height: 42px;
-    border-radius: 50%;
-    background: #e5e7eb;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 600;
-    color: #6b7280;
-}
-
-.step-dot.active {
-    background: #2563eb;
-    color: #fff;
-}
-
-/* ======================================================
-   STEP 5 – HYPOTHESIS OPTIONS (CARD COUNTERS)
-====================================================== */
-.step-5 {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-}
-
-.option-card {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 18px 20px;
-    border-radius: 14px;
-}
-
-.option-info h4 {
-    margin: 0;
-    font-size: 16px;
-    font-weight: 600;
-}
-
-.option-info p {
-    margin: 4px 0 0;
-    font-size: 13px;
-    color: #6b7280;
-}
-
-/* COLORS */
-.option-card.correct {
-    background: #ecfdf5;
-    border: 1px solid #a7f3d0;
-}
-
-.option-card.partial {
-    background: #fffbeb;
-    border: 1px solid #fde68a;
-}
-
-.option-card.incorrect {
-    background: #fef2f2;
-    border: 1px solid #fecaca;
-}
-
-/* COUNTER */
-.counter {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-
-.counter button {
-    width: 38px;
-    height: 38px;
-    border-radius: 10px;
-    border: none;
-    background: #2563eb;
-    color: #fff;
-    font-size: 20px;
-    cursor: pointer;
-}
-
-.counter span {
-    min-width: 24px;
-    text-align: center;
-    font-size: 18px;
-    font-weight: 600;
+    min-height: 120px;
 }
 
 /* ======================================================
    BUTTONS
 ====================================================== */
-.primary-btn {
-    width: 100%;
-    padding: 14px;
-    border-radius: 12px;
-    background: #2563eb;
-    color: #fff;
+#wizard-box button {
+    margin-top: 32px;
+    padding: 16px 28px;
+    border-radius: 16px;
     font-size: 16px;
-    font-weight: 600;
+    font-weight: 700;
     border: none;
+    background: #2563eb;
+    color: #ffffff;
     cursor: pointer;
+    float: right;
 }
 
-.primary-btn:hover {
+#wizard-box button:hover {
     background: #1e40af;
 }
-/* ======================================================
-   Step 1
-====================================================== */
 
-
-.txt1 {
-    font-weight: 600;
-    margin-bottom: 8px;
+#wizard-box::after {
+    content: "";
     display: block;
-    color: #111827; /* dark neutral */
-}
-
-
-
-#org_select option:checked {
-    background-color: #1e40af;
-    color: #ffffff;
-}
-
-#org_select:focus option:checked {
-    background-color: #1e40af;
-    color: #ffffff;
+    clear: both;
 }
 
 /* ======================================================
-   Step 2
+   LOADER
+====================================================== */
+#loader {
+    margin-top: 20px;
+    text-align: center;
+    font-weight: 600;
+    color: #2563eb;
+}
+
+/* ======================================================
+   CONTENT BOX SIZE REFINEMENT
 ====================================================== */
 
+/* make card feel lighter & compact */
+#wizard-box {
+    max-width: 720px;          /* reduce visual width */
+    margin: 0 auto;            /* center card */
+    padding: 24px 26px;        /* reduced padding */
+}
+
+/* reduce title size slightly */
+#wizard-box h3 {
+    font-size: 28px;           /* was 34px */
+    margin-bottom: 10px;
+}
+
+/* tighten label spacing */
+#wizard-box label {
+    margin-top: 18px;          /* was 26px */
+    margin-bottom: 6px;
+    font-size: 14px;
+}
+
+/* inputs slightly smaller */
+#wizard-box input,
+#wizard-box textarea,
+#wizard-box select {
+    padding: 14px 16px;        /* was 16px 18px */
+    font-size: 15px;
+}
+
+/* reduce textarea height */
+#wizard-box textarea {
+    min-height: 96px;          /* was 120px */
+}
+
+/* buttons slightly smaller */
+#wizard-box button {
+    margin-top: 24px;          /* was 32px */
+    padding: 14px 24px;
+    font-size: 15px;
+}
+
+/* optional: reduce new-org box size */
+#new-org-fields {
+    padding: 18px;
+}
