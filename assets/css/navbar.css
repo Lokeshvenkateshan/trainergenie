@@ -30,6 +30,8 @@
     height: 36px;
     width: auto;
     cursor: pointer;
+    position: relative;
+    left: 20px;
 }
 
    /* CENTER – MENU LINKS */
@@ -86,9 +88,16 @@
 .nav-user {
     width: 36px;
     height: 36px;
+    border: 0.5px solid;
     border-radius: 50%;
+    padding: 0px;
     object-fit: cover;
     cursor: pointer;
+    position: relative;
+    right: 25px;
+}
+.nav-user:hover{
+    padding: 2px;
 }
 
 /* Logout button */
@@ -105,6 +114,8 @@
     border-radius: 8px;
 
     cursor: pointer;
+    position: relative;
+    right: 12px;
 
     transition:
         background-color 0.15s ease,

@@ -1,6 +1,9 @@
 <?php
 $currentPage = basename($_SERVER['PHP_SELF']);
+$navImg = $_SESSION['team_image'] ?? './assets/images/user.png';
+
 ?>
+
 
 <link rel="stylesheet" href="/trainergenie/assets/css/navbar.css">
 
@@ -35,8 +38,10 @@ $currentPage = basename($_SERVER['PHP_SELF']);
 
     <!-- RIGHT : PROFILE + LOGOUT -->
     <div class="nav-right">
-        <img src="/trainergenie/assets/images/user.png" class="nav-user" alt="User">
+    <a href="/trainergenie/profile.php">
+        <img src="<?= $navImg ?>" class="nav-user" alt="User">
 
+    </a>
         <form action="logout.php" method="post">
             <button type="submit" class="logout-btn">Logout</button>
         </form>

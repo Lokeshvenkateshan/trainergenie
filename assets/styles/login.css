@@ -97,6 +97,29 @@ button {
     color: #c0392b;
 }
 
+.password-field {
+    position: relative;
+}
+
+.password-field input {
+    padding-right: 44px;
+}
+
+.eye-img {
+    position: absolute;
+    right: 12px;
+    top: 40%;
+    transform: translateY(-50%);
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    opacity: .65;
+}
+
+.eye-img:hover {
+    opacity: 1;
+}
+
 @media (max-width: 420px) {
     .login-box {
         width: 90%;

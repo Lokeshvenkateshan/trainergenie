@@ -20,7 +20,7 @@ if (empty($email) || empty($password)) {
 $encoded_password = base64_encode($password);
 
 $stmt = $conn->prepare("
-    SELECT team_id, team_name 
+    SELECT team_id, team_name, team_image
     FROM team 
     WHERE team_login = ? 
       AND team_password = ?
@@ -38,6 +38,7 @@ if ($result->num_rows === 1) {
     // Store session
     $_SESSION["team_id"]   = $row["team_id"];
     $_SESSION["team_name"] = $row["team_name"];
+    $_SESSION['team_image'] = $row['team_image'];
     $_SESSION["last_activity"] = time();
 
     echo json_encode([

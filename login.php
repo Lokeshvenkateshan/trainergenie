@@ -35,7 +35,12 @@ if (isset($_GET["timeout"])) {
         <input type="email" name="team_login" required>
 
         <label>Password</label>
-        <input type="password" name="team_password" required>
+        <div class="password-field">   
+            <input type="password" name="team_password" id="password" required>
+            <img src="/trainergenie/assets/images/eye-open.svg" class="eye-img"
+                onclick="togglePasswordImg('password', this)">
+        </div>
+        
 
         <button type="submit" class="btn-login">Login</button>
     </form>
@@ -77,6 +82,20 @@ document.getElementById("loginForm").addEventListener("submit", function (e) {
         msg.innerText = "Something went wrong. Please try again.";
     });
 });
+
+
+
+function togglePasswordImg(id, img) {
+    const input = document.getElementById(id);
+    if (input.type === "password") {
+        input.type = "text";
+        img.src = "/trainergenie/assets/images/eye-closed.svg";
+    } else {
+        input.type = "password";
+        img.src = "/trainergenie/assets/images/eye-open.svg";
+    }
+}
+
 </script>
 
 </body>

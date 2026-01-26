@@ -25,7 +25,7 @@ $exerciseRoutes = [
 
 <section class="templates-section">
  <div class="back-div">
- <a href="index.php" class="back-btn"> <img src="./upload-images/utils/back.png"> Back</a>
+ <a href="index.php" class="back-btn"> <img src="./assets/images/back-icon.png  "> Back</a>
 
  </div>
 
