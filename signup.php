@@ -19,6 +19,9 @@
         <label>Email</label>
         <input type="email" name="team_login" required>
 
+        <label>Organization</label>
+        <input type="text" name="team_org" required>
+
         <label>Password</label>
         <input type="password" name="team_password" id="team_password" required>
 

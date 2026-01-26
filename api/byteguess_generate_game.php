@@ -21,9 +21,8 @@ require "../include/dataconnect.php";
 require "../config.php";
 require "../openai_call.php";
 
-/* =========================================================
-   SESSION + INPUT VALIDATION
-========================================================= */
+/* 
+   SESSION + INPUT VALIDATION */
 
 $team_id = $_SESSION['team_id'] ?? 0;
 
@@ -35,9 +34,8 @@ if (!$team_id || !$ui_id) {
     exit;
 }
 
-/* =========================================================
-   LOAD USER INPUT (DRAFT)
-========================================================= */
+/*
+   LOAD USER INPUT (DRAFT) */
 
 $stmt = $conn->prepare("
     SELECT *
@@ -53,9 +51,8 @@ if (!$ui) {
     exit;
 }
 
-/* =========================================================
-   CREATE CARD GROUP (GAME)
-========================================================= */
+/* 
+   CREATE CARD GROUP (GAME) */
 $stmt = $conn->prepare("
     INSERT INTO card_group
     (cg_name, cg_description, cg_max, byteguess_pkid, cg_status)
@@ -73,13 +70,12 @@ $stmt->execute();
 
 $cg_id = $stmt->insert_id;
 
-/* =========================================================
-   AI MEMORY (REBUILT SEQUENTIALLY)
-========================================================= */
+/* 
+   AI MEMORY (REBUILT SEQUENTIALLY)*/
 
 $messages = [];
 
-/* ---------------- STEP 2 PROMPT ---------------- */
+/*  */
 
 $prompt2 = "
 You are an instructional content designer assisting in the creation of a randomized learning card game.
@@ -101,7 +97,7 @@ $messages[] = ["role"=>"user","content"=>$prompt2];
 $response2 = callOpenAI($messages);
 $messages[] = ["role"=>"assistant","content"=>$response2];
 
-/* ---------------- STEP 3 PROMPT ---------------- */
+/*  STEP 3 PROMPT  */
 
 $prompt3 = "
 Create a fictitious company scenario.
@@ -124,7 +120,7 @@ $messages[] = ["role"=>"user","content"=>$prompt3];
 $response3 = callOpenAI($messages);
 $messages[] = ["role"=>"assistant","content"=>$response3];
 
-/* ---------------- STEP 4 PROMPT (CARDS) ---------------- */
+/*  STEP 4 PROMPT (CARDS)  */
 
 $prompt4 = "
 Using the agreed structure and company context, create exactly {$ui['ui_total_cards']} cards.
@@ -144,9 +140,8 @@ $messages[] = ["role"=>"user","content"=>$prompt4];
 $cardsRaw = callOpenAI($messages);
 $messages[] = ["role"=>"assistant","content"=>$cardsRaw];
 
-/* =========================================================
-   PARSE + INSERT CARDS
-========================================================= */
+/* 
+   PARSE + INSERT CARDS */
 
 $blocks = preg_split('/\*\*Card\s+\d+:/', $cardsRaw);
 array_shift($blocks);
@@ -179,7 +174,7 @@ foreach ($blocks as $block) {
     }
 }
 
-/* ---------------- STEP 5 PROMPT (OPTIONS) ---------------- */
+/*  STEP 5 PROMPT (OPTIONS)  */
 
 $opts = json_decode($ui['ui_options'], true);
 
@@ -241,19 +236,22 @@ $stmt = $conn->prepare("
 $stmt->bind_param("si", $jsonAnswers, $cg_id);
 $stmt->execute();
 
-/* ---------------- STEP 6 PROMPT (ANSWER KEY) ---------------- */
+/*  STEP 6 PROMPT (ANSWER KEY)  */
 
 $prompt6 = "
-Generate a participant-facing answer key.
-
-Explain:
-• Why the correct option is strongest
-• How card signals connect
-• What partial options miss
-
-Tone:
+Using the correct hypothesis and card signals, generate a participant-facing answer key.
+Provide an answer key paragraph that can be shared with participants.
+Guidelines
+• Focus on:
+• Why the correct answer is strongest
+• What participants may have missed in partial options
+• How different card signals connect
+• Tone should be:
 • Constructive
 • Learning-oriented
+• Not judgmental
+The explanation should reinforce synthesis and reasoning, not just correctness.
+Give only answer key content, don't give any heading before and after the content.
 ";
 
 $messages[] = ["role"=>"user","content"=>$prompt6];
@@ -267,9 +265,8 @@ $stmt = $conn->prepare("
 $stmt->bind_param("si", $answerKey, $cg_id);
 $stmt->execute();
 
-/* =========================================================
-   FINALIZE
-========================================================= */
+/* 
+   FINALIZE */
 
 $stmt = $conn->prepare("
     UPDATE byteguess_user_input

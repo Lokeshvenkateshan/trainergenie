@@ -5,6 +5,7 @@ include("include/dataconnect.php");
 
 $team_name  = trim($_POST["team_name"] ?? "");
 $team_login = trim($_POST["team_login"] ?? "");
+$team_org   = trim($_POST["team_org"] ?? "");
 $password   = trim($_POST["team_password"] ?? "");
 $confirm    = trim($_POST["confirm_password"] ?? "");
 
@@ -28,19 +29,55 @@ if ($check->num_rows > 0) {
 }
 
 // insert user
-$stmt = $conn->prepare("
+/* $stmt = $conn->prepare("
     INSERT INTO team (team_name, team_login, team_password, team_creatby)
     VALUES (?, ?, ?, ?)
 ");
 
-$stmt->bind_param("sssi", $team_name, $team_login, $encoded_password, $team_creatby);
+$stmt->bind_param("sssi", $team_name, $team_login, $encoded_password, $team_creatby); */
+
+$stmt = $conn->prepare("
+    INSERT INTO team (team_name, team_login, team_org, team_password, team_creatby)
+    VALUES (?, ?, ?, ?, ?)
+");
+
+$stmt->bind_param(
+    "ssssi",
+    $team_name,
+    $team_login,
+    $team_org,
+    $encoded_password,
+    $team_creatby
+);
+
 
 if ($stmt->execute()) {
 
+    $team_id = $stmt->insert_id;
     // LOGIN AFTER SIGNUP
     $_SESSION["team_id"] = $stmt->insert_id;
     $_SESSION["team_name"] = $team_name;
     $_SESSION["last_activity"] = time();
+
+
+    $catStmt = $conn->prepare("
+        INSERT INTO byteguess_category
+        (ig_team_pkid, ig_name, ig_description, ig_status, createddate)
+        VALUES (?, ?, ?, ?, NOW())
+    ");
+
+    $ig_description = ""; // optional / empty
+    $ig_status = 1;
+
+    $catStmt->bind_param(
+        "issi",
+        $team_id,
+        $team_org,
+        $ig_description,
+        $ig_status
+    );
+
+    $catStmt->execute();
 
     echo json_encode([
         "status" => "success",
