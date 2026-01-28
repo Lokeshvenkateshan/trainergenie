@@ -40,7 +40,7 @@ if ($result->num_rows === 1) {
     $_SESSION["team_name"] = $row["team_name"];
     $_SESSION['team_image'] = $row['team_image'];
     $_SESSION["last_activity"] = time();
-
+    
     echo json_encode([
         "status" => "success",
         "message" => "Login successful"
