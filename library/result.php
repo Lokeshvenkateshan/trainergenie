@@ -56,7 +56,7 @@ $game = $stmt->get_result()->fetch_assoc();
 
 <script>
 function saveResult() {
-    fetch("<?= BASE_PATH ?>/libraries/save_result.php", {
+    fetch("save_result.php", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

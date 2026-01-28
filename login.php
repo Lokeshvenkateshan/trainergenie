@@ -3,7 +3,7 @@ session_start();
 
 /* Redirect if already logged in */
 if (isset($_SESSION["team_id"])) {
-    header("Location: byteguess_step1.php");
+    header("Location: index.php");
     exit;
 }
 

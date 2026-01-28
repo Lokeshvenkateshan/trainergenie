@@ -23,7 +23,7 @@ $stmt->execute();
 $game = $stmt->get_result()->fetch_assoc();
 
 $pageTitle = "Game Cards";
-$pageCSS   = "/library/game_cards.css";
+$pageCSS   = "/library/sample.css";
 require "../layout/header.php";
 
 /* Fetch cards */
@@ -59,7 +59,7 @@ $active = $cards[0] ?? null;
     <!-- LEFT -->
     <div class="cards-list">
         <h3>Cards (<?= count($cards) ?>)</h3>
-
+        <div class="cards-scroll">
         <?php foreach ($cards as $i => $card): ?>
             <div class="card-item <?= $i === 0 ? 'active' : '' ?>"
                  data-id="<?= $card['cu_id'] ?>"
@@ -69,6 +69,7 @@ $active = $cards[0] ?? null;
                 <span>Card <?= $card['cu_sequence'] ?></span>
             </div>
         <?php endforeach; ?>
+        </div>
     </div>
 
     <!-- CENTER -->

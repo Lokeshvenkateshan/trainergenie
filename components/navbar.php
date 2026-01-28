@@ -1,6 +1,6 @@
 <?php
 $currentPage = basename($_SERVER['PHP_SELF']);
-$navImg = $_SESSION['team_image'] ?? './assets/images/user.png';
+$navImg = $_SESSION['team_image'] ?? '/trainergenie/assets/images/user.png';
 
 ?>
 
@@ -42,7 +42,7 @@ $navImg = $_SESSION['team_image'] ?? './assets/images/user.png';
         <img src="<?= $navImg ?>" class="nav-user" alt="User">
 
     </a>
-        <form action="logout.php" method="post">
+        <form action="/trainergenie/logout.php" method="post">
             <button type="submit" class="logout-btn">Logout</button>
         </form>
     </div>
