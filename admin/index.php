@@ -1,7 +1,7 @@
 <?php
 
 $pageTitle = "TrainerGenie Admin Dashboard";
-$pageCSS   = "./styles/dashboard.css";
+$pageCSS   = "./styles/index.css";
 
 session_start();
 
@@ -28,7 +28,7 @@ $adminName = $_SESSION['admin_name'];
         <h1>Dashboard</h1>
         <p>Welcome, <strong><?= htmlspecialchars($adminName) ?></strong></p>
 
-        <a href="dashboard.php?logout=1" class="logout-btn">Logout</a>
+        <a href="index.php?logout=1" class="logout-btn">Logout</a>
     </div>
 </div>
 
