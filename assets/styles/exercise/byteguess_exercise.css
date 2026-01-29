@@ -1,5 +1,5 @@
 /* ======================================================
-   PAGE
+   PAGE & CONTAINER
 ====================================================== */
 .exercise-container {
     background: #f8fafc;
@@ -12,24 +12,21 @@
 
 .wizard {
     width: 100%;
-    max-width: 900px;
+    max-width: 720px; /* Compacted width for better focus */
+    margin: 0 auto;
 }
 
 /* ======================================================
-   WIZARD STEPS
+   WIZARD STEPS & PROGRESS BAR
 ====================================================== */
 .wizard-steps {
     margin-bottom: 28px;
 }
 
-/* hide logic-only dots */
 .step-dot {
-    display: none;
+    display: none; /* Logic-only markers */
 }
 
-/* ======================================================
-   STEP TEXT (Step X of 6)
-====================================================== */
 .step-text {
     font-size: 14px;
     font-weight: 600;
@@ -46,14 +43,11 @@
 #step-dot-2.active ~ .step-text [data-step="2"],
 #step-dot-3.active ~ .step-text [data-step="3"],
 #step-dot-4.active ~ .step-text [data-step="4"],
-#step-dot-5.active ~ .step-text [data-step="5"],
-#step-dot-6.active ~ .step-text [data-step="6"] {
+#step-dot-5.active ~ .step-text [data-step="5"] {
     display: inline;
 }
 
-/* ======================================================
-   PROGRESS BAR (THIS FIXES IT)
-====================================================== */
+
 .progress-bar {
     width: 100%;
     height: 8px;
@@ -70,94 +64,139 @@
     transition: width 0.35s ease;
 }
 
-/* step → width mapping */
-#step-dot-1.active ~ .progress-bar .progress-fill { width: 16.66%; }
-#step-dot-2.active ~ .progress-bar .progress-fill { width: 33.33%; }
-#step-dot-3.active ~ .progress-bar .progress-fill { width: 50%; }
-#step-dot-4.active ~ .progress-bar .progress-fill { width: 66.66%; }
-#step-dot-5.active ~ .progress-bar .progress-fill { width: 83.33%; }
-#step-dot-6.active ~ .progress-bar .progress-fill { width: 100%; }
+/* Step mapping to width */
+/* step → width mapping for 5 steps */
+#step-dot-1.active ~ .progress-bar .progress-fill { width: 20%; }
+#step-dot-2.active ~ .progress-bar .progress-fill { width: 40%; }
+#step-dot-3.active ~ .progress-bar .progress-fill { width: 60%; }
+#step-dot-4.active ~ .progress-bar .progress-fill { width: 80%; }
+#step-dot-5.active ~ .progress-bar .progress-fill { width: 100%; }
+
 
 /* ======================================================
-   MAIN CARD
+   MAIN CONTENT BOX (WIZARD BOX)
 ====================================================== */
 #wizard-box {
     background: #ffffff;
     border-radius: 20px;
-    padding: 32px;
+    padding: 24px 26px;
     box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
 }
 
 #wizard-box h3 {
-    font-size: 34px;
+    font-size: 28px;
     font-weight: 800;
     color: #0f172a;
-    margin-bottom: 12px;
+    margin-bottom: 10px;
 }
 
-/* ======================================================
-   LABELS
-====================================================== */
 #wizard-box label {
-    font-size: 15px;
+    font-size: 14px;
     font-weight: 700;
     color: #0f172a;
     display: block;
-    margin-top: 26px;
-    margin-bottom: 8px;
+    margin-top: 18px;
+    margin-bottom: 6px;
 }
 
 /* ======================================================
-   INPUTS
+   INPUTS & FORM ELEMENTS
 ====================================================== */
 #wizard-box input,
 #wizard-box textarea,
 #wizard-box select {
     width: 100%;
-    padding: 16px 18px;
+    padding: 14px 16px;
     border-radius: 16px;
     border: 1px solid #e2e8f0;
     background: #f8fafc;
-    font-size: 16px;
+    font-size: 15px;
+    box-sizing: border-box;
 }
 
 #wizard-box input:focus,
-#wizard-box textarea:focus,
-#wizard-box select:focus {
+#wizard-box textarea:focus {
     outline: none;
     background: #ffffff;
     border-color: #2563eb;
     box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.15);
 }
 
-textarea {
-    min-height: 120px;
+#wizard-box textarea {
+    min-height: 96px;
+    resize: vertical;
 }
 
 /* ======================================================
-   BUTTONS
+   CLUE SECTION & CONDITIONAL FADING
 ====================================================== */
+.clue-section {
+    margin-top: 25px;
+    padding: 15px;
+    background: #f1f5f9;
+    border-radius: 12px;
+}
+
+#clue_num_wrapper {
+    transition: opacity 0.3s ease, filter 0.3s ease;
+}
+
+/* Specific fade-out logic for hidden clues selection  */
+#clue_num_wrapper[style*="display: none"] {
+    opacity: 0;
+}
+
+/* ======================================================
+   REVIEW GRID & PREVIOUS BUTTONS
+====================================================== */
+.review-grid p {
+    margin: 8px 0;
+    font-size: 15px;
+    color: #475569;
+}
+
+.review-grid strong {
+    color: #0f172a;
+    display: inline-block;
+    width: 140px;
+}
+
+.button-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 24px;
+}
+
+/* Previous/Secondary Button style */
+.btn-secondary {
+    background: #f1f5f9 !important;
+    color: #475569 !important;
+    border: 1px solid #e2e8f0 !important;
+}
+
+.btn-secondary:hover {
+    background: #e2e8f0 !important;
+}
+
+/* Standard Button Reset */
 #wizard-box button {
-    margin-top: 32px;
-    padding: 16px 28px;
+    padding: 14px 24px;
     border-radius: 16px;
-    font-size: 16px;
+    font-size: 15px;
     font-weight: 700;
     border: none;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+#wizard-box button:not(.btn-secondary) {
     background: #2563eb;
     color: #ffffff;
-    cursor: pointer;
-    float: right;
 }
 
-#wizard-box button:hover {
+#wizard-box button:not(.btn-secondary):hover {
     background: #1e40af;
-}
-
-#wizard-box::after {
-    content: "";
-    display: block;
-    clear: both;
 }
 
 /* ======================================================
@@ -170,51 +209,122 @@ textarea {
     color: #2563eb;
 }
 
-/* ======================================================
-   CONTENT BOX SIZE REFINEMENT
-====================================================== */
-
-/* make card feel lighter & compact */
-#wizard-box {
-    max-width: 720px;          /* reduce visual width */
-    margin: 0 auto;            /* center card */
-    padding: 24px 26px;        /* reduced padding */
+/* Option Card Base Styling */
+.option-card, .clue-section-styled {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 16px 20px;
+    border-radius: 20px;
+    margin-bottom: 15px;
+    border: 1px solid transparent;
 }
 
-/* reduce title size slightly */
-#wizard-box h3 {
-    font-size: 28px;           /* was 34px */
-    margin-bottom: 10px;
+.option-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    flex-shrink: 0;
 }
 
-/* tighten label spacing */
-#wizard-box label {
-    margin-top: 18px;          /* was 26px */
-    margin-bottom: 6px;
-    font-size: 14px;
+.option-info {
+    flex-grow: 1;
+    text-align: left;
 }
 
-/* inputs slightly smaller */
-#wizard-box input,
-#wizard-box textarea,
-#wizard-box select {
-    padding: 14px 16px;        /* was 16px 18px */
-    font-size: 15px;
+.option-info label {
+    margin: 0 !important;
+    font-size: 16px !important;
+    font-weight: 700 !important;
 }
 
-/* reduce textarea height */
-#wizard-box textarea {
-    min-height: 96px;          /* was 120px */
+.option-info span {
+    font-size: 13px;
+    color: #64748b;
 }
 
-/* buttons slightly smaller */
-#wizard-box button {
-    margin-top: 24px;          /* was 32px */
-    padding: 14px 24px;
-    font-size: 15px;
+/* Color Themes based on image */
+.option-card.correct { background: #f0fdf4; border-color: #dcfce7; }
+.option-card.correct .option-icon { background: #dcfce7; color: #166534; }
+
+.option-card.partial { background: #fffbeb; border-color: #fef3c7; }
+.option-card.partial .option-icon { background: #fef3c7; color: #92400e; }
+
+.option-card.wrong { background: #fef2f2; border-color: #fee2e2; }
+.option-card.wrong .option-icon { background: #fee2e2; color: #991b1b; }
+
+.clue-section-styled { background: #f8fafc; border: 1px dashed #e2e8f0; flex-direction: column; align-items: stretch; }
+.clue-header { display: flex; align-items: center; gap: 15px; }
+.clue-icon { background: #e2e8f0; color: #475569; }
+
+/* Counter Input Styling */
+.counter-input {
+    width: 80px;
 }
 
-/* optional: reduce new-org box size */
-#new-org-fields {
-    padding: 18px;
+.counter-input input {
+    text-align: center;
+    padding: 10px !important;
+    font-weight: bold;
+    background: #fff !important;
+}
+
+/* Container for the +/- and input */
+.stepper-wrap {
+    display: flex;
+    align-items: center;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 4px;
+    height: 40px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+}
+
+.stepper-wrap button {
+    background: none !important;
+    border: none !important;
+    color: #64748b !important;
+    font-size: 18px !important;
+    width: 30px !important;
+    height: 30px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer;
+    margin: 0 !important;
+    padding: 0 !important;
+    transition: color 0.2s;
+}
+
+.stepper-wrap button:hover {
+    color: #2563eb !important;
+}
+
+.stepper-wrap input {
+    width: 40px !important;
+    border: none !important;
+    background: transparent !important;
+    text-align: center !important;
+    font-weight: 800 !important;
+    font-size: 16px !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    box-shadow: none !important;
+}
+
+/* Hide default arrows for Chrome, Safari, Edge, Opera */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/* Hide default arrows for Firefox */
+input[type=number] {
+    -moz-appearance: textfield;
 }

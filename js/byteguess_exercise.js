@@ -1,10 +1,9 @@
 document.addEventListener("DOMContentLoaded", loadStep1);
 
 let ui_id = null;
+let draftData = {}; // Local cache to persist data when navigating back/forth
 
-/* =========================
-   HELPERS
-========================= */
+/* ================= HELPERS ================= */
 
 function val(id) {
     const el = document.getElementById(id);
@@ -18,29 +17,43 @@ function setStep(n) {
 }
 
 function showLoader(show) {
-    const l = document.getElementById("loader");
-    if (l) l.style.display = show ? "block" : "none";
+    const loader = document.getElementById("loader");
+    if (loader) loader.style.display = show ? "block" : "none";
 }
 
-/* =========================
-   SAFE FETCH JSON
-========================= */
-async function safeJSON(response) {
-    const text = await response.text();
+async function safeJSON(res) {
+    const text = await res.text();
     try {
         return JSON.parse(text);
     } catch {
-        console.error("Invalid JSON from server:", text);
-        throw new Error("Invalid JSON");
+        throw new Error("Invalid server response");
     }
 }
 
-/* =========================
-   SAVE STEP (COMMON)
-========================= */
-function saveStep(step, data, onSuccess) {
-    showLoader(true);
+/**
+ * Generates the standard button footer for the wizard
+ */
+function getButtonFooter(nextAction, nextLabel = "Next", prevAction = null) {
+    let html = `<div class="button-footer" style="margin-top: 24px; display: flex; justify-content: space-between;">`;
+    
+    if (prevAction) {
+        html += `<button type="button" onclick="${prevAction}" class="btn-secondary" style="background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0; padding: 14px 24px; border-radius: 16px; font-weight: 700; cursor: pointer;">Previous</button>`;
+    } else {
+        html += `<span></span>`; // Spacer
+    }
+    
+    html += `<button type="button" onclick="${nextAction}" style="padding: 14px 24px; border-radius: 16px; font-weight: 700; background: #2563eb; color: #ffffff; border: none; cursor: pointer;">${nextLabel}</button>`;
+    html += `</div>`;
+    return html;
+}
 
+/* ================= SAVE LOGIC ================= */
+
+function saveStep(step, data, next) {
+    // Update local cache
+    draftData = { ...draftData, ...data };
+    
+    showLoader(true);
     fetch("api/byteguess_save_step.php", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -49,292 +62,249 @@ function saveStep(step, data, onSuccess) {
     .then(safeJSON)
     .then(d => {
         if (d.status === "success") {
-            if (d.ui_id) ui_id = d.ui_id;
-            onSuccess && onSuccess();
+            if (d.ui_id) ui_id = d.ui_id; 
+            if (next) next();
         } else {
             alert(d.message || "Save failed");
         }
     })
-    .catch(() => alert("Server error (check PHP logs)"))
+    .catch(err => alert("Server error: " + err.message))
     .finally(() => showLoader(false));
 }
 
-/* =========================
-   STEP 1 – ORGANIZATION
-========================= */
+/* ================= STEPS ================= */
+
 function loadStep1() {
     setStep(1);
-    showLoader(true);
+    document.getElementById("wizard-box").innerHTML = `
+        <h3>Byte Guess Game Creation</h3>
+        <label>Game Name</label>
+        <input id="ui_game_name" placeholder="Enter Game Name" value="${draftData.ui_game_name || ''}">
+        
+        <label>Game Description</label>
+        <textarea id="ui_game_description" placeholder="Enter Game Description">${draftData.ui_game_description || ''}</textarea>
+        
+        <div style="display: flex; gap: 15px;">
+            <div style="flex: 1;">
+                <label>Total Cards</label>
+                <input id="ui_total_cards" type="number" min="6" value="${draftData.ui_total_cards || 12}">
+            </div>
+            <div style="flex: 1;">
+                <label>Cards Drawn</label>
+                <input id="ui_cards_drawn" type="number" value="${draftData.ui_cards_drawn || 4}">
+            </div>
+        </div>
 
-    fetch("api/byteguess_get_orgs.php")
-        .then(safeJSON)
-        .then(orgs => {
-
-            let options = `<option value="">-- Create New Organization --</option>`;
-            orgs.forEach(o => {
-                options += `<option value="${o.ig_id}">${o.ig_name}</option>`;
-            });
-
-            document.getElementById("wizard-box").innerHTML = `
-                <h3>Step 1: Organization</h3>
-
-                <label>Select Organization</label>
-                <select id="org_id" onchange="toggleOrgFields()">
-                    ${options}
-                </select>
-
-                <div id="new-org-fields" style="display:none;">
-                    <label>Organization Name</label>
-                    <input
-                        id="org_name"
-                        placeholder="e.g., Acme Technologies"
-                    >
-
-                    <label>Organization Description</label>
-                    <textarea
-                        id="org_description"
-                        rows="3"
-                        placeholder="e.g., A company focused on enterprise training"
-                    ></textarea>
-                </div>
-
-                <button onclick="submitStep1()">Next</button>
-            `;
-
-            toggleOrgFields();
-        })
-        .catch(() => alert("Failed to load organizations"))
-        .finally(() => showLoader(false));
+        <label>Card Structure</label>
+        <textarea id="ui_card_structure" placeholder="Facts, signals, clues...">${draftData.ui_card_structure || ''}</textarea>
+        
+        ${getButtonFooter("submitStep1()")}
+    `;
 }
 
-
-/* =========================
-   TOGGLE NEW ORG FIELDS
-========================= */
-function toggleOrgFields() {
-    const orgId = val("org_id");
-    document.getElementById("new-org-fields").style.display =
-        orgId ? "none" : "block";
-}
-
-
-/* =========================
-   SUBMIT STEP 1
-========================= */
 function submitStep1() {
-    const org_id = val("org_id");
-
-    let payload = { org_id };
-
-    // NEW ORG FLOW
-    if (!org_id) {
-        const org_name = val("org_name");
-        const org_description = val("org_description");
-
-        if (!org_name || !org_description) {
-            alert("Organization name and description are required");
-            return;
-        }
-
-        payload.org_name = org_name;
-        payload.org_description = org_description;
-    }
-
-    saveStep(1, payload, loadStep2);
+    saveStep(1, {
+        ui_game_name: val("ui_game_name"),
+        ui_game_description: val("ui_game_description"),
+        ui_total_cards: parseInt(val("ui_total_cards")),
+        ui_cards_drawn: parseInt(val("ui_cards_drawn")),
+        ui_card_structure: val("ui_card_structure")
+    }, loadStep2);
 }
 
-
-
-/* =========================
-   STEP 2 – GAME SETUP
-========================= */
 function loadStep2() {
     setStep(2);
-
     document.getElementById("wizard-box").innerHTML = `
-        <h3>Step 2: Game Setup</h3>
-
-        <label>Game Name</label>
-        <input id="ui_game_name" placeholder="e.g., Cyber Awareness Challenge">
-
-        <label>Total Cards</label>
-        <input id="ui_total_cards" type="number" min="6" placeholder="e.g., 20">
-
-        <label>Cards Drawn per Round</label>
-        <input id="ui_cards_drawn" type="number" placeholder="e.g., 5">
-
-        <button onclick="submitStep2()">Next</button>
+        <h3>Game Content</h3>
+        <label>Training Topic</label>
+        <input id="ui_training_topic" placeholder="Training Topic" value="${draftData.ui_training_topic || ''}">
+        
+        <label>Industry</label>
+        <input id="ui_industry" placeholder="Industry" value="${draftData.ui_industry || ''}">
+        
+        <label>Objective</label>
+        <input id="ui_objective" placeholder="Objective" value="${draftData.ui_objective || ''}">
+        
+        <label>Hypothesis</label>
+        <textarea id="ui_hypothesis" placeholder="Hypothesis">${draftData.ui_hypothesis || ''}</textarea>
+        
+        ${getButtonFooter("submitStep2()", "Next", "loadStep1()")}
     `;
 }
-
 
 function submitStep2() {
-    const name = val("ui_game_name");
-    const c = parseInt(val("ui_total_cards"));
-    const d = parseInt(val("ui_cards_drawn"));
-
-    if (!name || !c || !d || d > c) {
-        alert("Invalid game setup");
-        return;
-    }
-
     saveStep(2, {
-        ui_game_name: name,
-        ui_total_cards: c,
-        ui_cards_drawn: d
-    }, loadStep3);
-}
-
-/* =========================
-   STEP 3 – CONTEXT
-========================= */
-function loadStep3() {
-    setStep(3);
-
-    document.getElementById("wizard-box").innerHTML = `
-        <h3>Step 3: Game Context</h3>
-
-        <label>Training Topic</label>
-        <input id="ui_training_topic" placeholder="e.g., Secure Coding Practices">
-
-        <label>Industry</label>
-        <input id="ui_industry" placeholder="e.g., IT / Banking / Healthcare">
-
-        <label>Objective</label>
-        <input id="ui_objective" placeholder="e.g., Improve awareness of threats">
-
-        <label>Hypothesis</label>
-        <input id="ui_hypothesis" placeholder="e.g., Practice improves retention">
-
-        <button onclick="submitStep3()">Next</button>
-    `;
-}
-
-
-function submitStep3() {
-    saveStep(3, {
         ui_training_topic: val("ui_training_topic"),
         ui_industry: val("ui_industry"),
         ui_objective: val("ui_objective"),
         ui_hypothesis: val("ui_hypothesis")
-    }, loadStep4);
+    }, loadStep3);
 }
 
-/* =========================
-   STEP 4 – CARD STRUCTURE
-========================= */
-function loadStep4() {
-    setStep(4);
+/* --- Helper for Counter Buttons --- */
+function changeVal(id, delta) {
+    const input = document.getElementById(id);
+    if (!input) return;
+    const newVal = parseInt(input.value) + delta;
+    const min = parseInt(input.getAttribute('min')) || 0;
+    if (newVal >= min) {
+        input.value = newVal;
+    }
+}
 
+function loadStep3() {
+    setStep(3);
+    const hasClues = draftData.ui_clue > 0;
+    
     document.getElementById("wizard-box").innerHTML = `
-        <h3>Step 4: Card Structure</h3>
-
-        <label>Card Content Structure</label>
-        <input
-            id="ui_card_structure"
-            placeholder="e.g., Facts, Signals, Clues"
-        >
-
-        <button onclick="submitStep4()">Next</button>
+        <h3>Options Mix & Clues</h3>
+        
+        <div class="option-card correct">
+            <div class="option-icon">✔</div>
+            <div class="option-info">
+                <label>Fully Correct Options</label>
+                <span>Answers that award 100% points.</span>
+            </div>
+            <div class="stepper-wrap">
+                <button type="button" onclick="changeVal('opt_full', -1)">−</button>
+                <input id="opt_full" type="number" value="${draftData.ui_options?.full || 1}" min="1" readonly>
+                <button type="button" onclick="changeVal('opt_full', 1)">+</button>
+            </div>
+        </div>
+        
+        <div class="option-card partial">
+            <div class="option-icon">⚠</div>
+            <div class="option-info">
+                <label>Partially Correct Options</label>
+                <span>Answers that award partial points (e.g., 50%).</span>
+            </div>
+            <div class="stepper-wrap">
+                <button type="button" onclick="changeVal('opt_partial', -1)">−</button>
+                <input id="opt_partial" type="number" value="${draftData.ui_options?.partial || 1}" min="0" readonly>
+                <button type="button" onclick="changeVal('opt_partial', 1)">+</button>
+            </div>
+        </div>
+        
+        <div class="option-card wrong">
+            <div class="option-icon">✖</div>
+            <div class="option-info">
+                <label>Incorrect Options</label>
+                <span>Distractors that award 0 points.</span>
+            </div>
+            <div class="stepper-wrap">
+                <button type="button" onclick="changeVal('opt_wrong', -1)">−</button>
+                <input id="opt_wrong" type="number" value="${draftData.ui_options?.wrong || 2}" min="1" readonly>
+                <button type="button" onclick="changeVal('opt_wrong', 1)">+</button>
+            </div>
+        </div>
+        
+        <div class="clue-section-styled">
+            <div class="clue-header">
+                <div class="option-icon clue-icon">?</div>
+                <div class="option-info">
+                    <label style="display:flex; align-items:center; gap:10px; cursor:pointer;">
+                        <input type="checkbox" id="wants_clues" style="width:auto; margin:0;"
+                               ${hasClues ? 'checked' : ''}
+                               onchange="toggleClueSelection(this.checked)">
+                        Did you want Clues?
+                    </label>
+                    <span>Additional hints to guide participants.</span>
+                </div>
+            </div>
+            
+            <div id="clue_num_wrapper" style="display: ${hasClues ? 'block' : 'none'}; margin-top: 15px; border-top: 1px solid rgba(0,0,0,0.05); padding-top: 15px;">
+                <div style="display:flex; align-items:center; justify-content: space-between;">
+                    <label style="margin:0 !important;">Number of Clues</label>
+                    <div class="stepper-wrap">
+                        <button type="button" onclick="changeVal('ui_clue', -1)">−</button>
+                        <input id="ui_clue" type="number" value="${draftData.ui_clue || 2}" min="1" readonly>
+                        <button type="button" onclick="changeVal('ui_clue', 1)">+</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        ${getButtonFooter("submitStep3()", "Click to Review", "loadStep2()")}
     `;
 }
 
-function submitStep4() {
-    saveStep(4, {
-        ui_card_structure: val("ui_card_structure")
-    }, loadStep5);
+function toggleClueSelection(isChecked) {
+    const wrapper = document.getElementById('clue_num_wrapper');
+    if (wrapper) {
+        wrapper.style.display = isChecked ? 'block' : 'none';
+    }
 }
 
-/* =========================
-   STEP 5 – OPTIONS
-========================= */
-function loadStep5() {
-    setStep(5);
+function submitStep3() {
+    const hasClues = document.getElementById("wants_clues").checked;
+    const clueCount = hasClues ? parseInt(val("ui_clue")) : 0;
 
-    document.getElementById("wizard-box").innerHTML = `
-        <h3>Step 5: Options Mix</h3>
-
-        <label>Fully Correct Options</label>
-        <input id="opt_full" type="number" value="1">
-
-        <label>Partially Correct Options</label>
-        <input id="opt_partial" type="number" value="1">
-
-        <label>Incorrect Options</label>
-        <input id="opt_wrong" type="number" value="2">
-
-        <button onclick="submitStep5()">Next</button>
-    `;
-}
-
-
-function submitStep5() {
-    saveStep(5, {
+    saveStep(3, {
         ui_options: {
             full: val("opt_full"),
             partial: val("opt_partial"),
             wrong: val("opt_wrong")
-        }
-    }, loadStep6);
+        },
+        ui_clue: clueCount
+    }, loadStep4);
 }
 
-/* =========================
-   STEP 6 – GENERATE
-========================= */
-function loadStep6() {
-    setStep(6);
-
-    document.getElementById("wizard-box").innerHTML = `
-        <h3>Step 6: Generate Exercise</h3>
-
-        <p style="margin-bottom:16px;color:#475569;">
-            Review all inputs and generate the exercise.
-        </p>
-
-        <button id="genBtn" onclick="generateExercise()">Generate</button>
-        <p id="genStatus" style="margin-top:12px;color:#64748b;"></p>
-    `;
-}
-
-
-async function generateExercise() {
-    const btn = document.getElementById("genBtn");
-    const status = document.getElementById("genStatus");
-
-    btn.disabled = true;
-    status.innerText = "Generating exercise… this may take up to 30 seconds.";
+async function loadStep4() {
+    setStep(4);
     showLoader(true);
+    try {
+        const res = await fetch(`api/byteguess_get_review.php?ui_id=${ui_id}`);
+        const data = await safeJSON(res);
+        const opts = typeof data.ui_options === 'string' ? JSON.parse(data.ui_options) : data.ui_options;
 
+        document.getElementById("wizard-box").innerHTML = `
+            <h3>Review</h3>
+            <div class="review-grid" style="text-align: left;">
+                <p><strong>Game Name:</strong> ${data.ui_game_name}</p>
+                <p><strong>Description:</strong> ${data.ui_game_description}</p>
+                <p><strong>Cards:</strong> ${data.ui_total_cards} Total / ${data.ui_cards_drawn} Drawn</p>
+                <p><strong>Structure:</strong> ${data.ui_card_structure}</p>
+                <hr style="border:0; border-top:1px solid #e2e8f0; margin:15px 0;">
+                <p><strong>Context:</strong> ${data.ui_training_topic} | ${data.ui_industry}</p>
+                <p><strong>Objective:</strong> ${data.ui_objective}</p>
+                <p><strong>Hypothesis:</strong> ${data.ui_hypothesis}</p>
+                <hr style="border:0; border-top:1px solid #e2e8f0; margin:15px 0;">
+                <p><strong>Mix:</strong> Full (${opts.full}), Partial (${opts.partial}), Wrong (${opts.wrong})</p>
+                <p><strong>Clues:</strong> ${data.ui_clue > 0 ? data.ui_clue : 'None'}</p>
+            </div>
+            ${getButtonFooter("generate()", "Generate", "loadStep3()")}
+        `;
+    } catch (e) {
+        alert("Could not load review data.");
+    } finally {
+        showLoader(false);
+    }
+}
+
+async function generate() {
+    showLoader(true);
+    setStep(6);
     try {
         const res = await fetch("api/byteguess_generate_game.php", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ ui_id })
         });
-
-        const text = await res.text();   // 👈 CRITICAL
-        let data;
-
-        try {
-            data = JSON.parse(text);
-        } catch {
-            console.error("RAW SERVER RESPONSE:", text);
-            throw new Error("Invalid JSON from server");
+        const data = await safeJSON(res);
+        if (data.status === "success") {
+            document.getElementById("wizard-box").innerHTML = `
+                <div style="text-align:center;">
+                    <h3 style="color: #059669;">Exercise Created 🎉</h3>
+                    <p style="font-size: 18px; margin: 20px 0;">Game ID: <strong>${data.cg_id}</strong></p>
+                    <button onclick="location.reload()" style="padding: 14px 24px; border-radius: 16px; font-weight: 700; background: #2563eb; color: #ffffff; border: none; cursor: pointer;">Create New</button>
+                </div>`;
+        } else {
+            alert(data.message);
+            loadStep4(); // Go back to review on failure
         }
-
-        if (data.status !== "success") {
-            throw new Error(data.message || "Generation failed");
-        }
-
-        document.getElementById("wizard-box").innerHTML = `
-            <h3>Exercise Created Successfully 🎉</h3>
-            <p>Exercise ID: ${data.cg_id}</p>
-        `;
-
-    } catch (err) {
-        alert("Generation failed. Check server logs.");
-        console.error(err);
-        btn.disabled = false;
+    } catch (e) {
+        alert("Generation failed.");
+        loadStep4();
     } finally {
         showLoader(false);
     }

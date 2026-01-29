@@ -15,7 +15,7 @@ require "layout/header.php";
 <div class="wizard-steps">
 
     <!-- step markers (JS logic only) -->
-    <?php for ($i = 1; $i <= 6; $i++): ?>
+    <?php for ($i = 1; $i <= 5; $i++): ?>
         <span
             class="step-dot <?= $i === 1 ? 'active' : '' ?>"
             id="step-dot-<?= $i ?>"
@@ -24,9 +24,9 @@ require "layout/header.php";
 
     <!-- step text -->
     <div class="step-text">
-        <?php for ($i = 1; $i <= 6; $i++): ?>
+        <?php for ($i = 1; $i <= 5; $i++): ?>
             <span class="step-label" data-step="<?= $i ?>">
-                Step <?= $i ?> of 6
+                Step <?= $i ?> of 5
             </span>
         <?php endfor; ?>
     </div>
